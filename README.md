@@ -1,1 +1,3 @@
-# android-application
+# RemindDoor
+
+The source code for the RemindDoor app
