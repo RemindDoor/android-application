@@ -32,4 +32,8 @@ public class HomeFragment extends Fragment {
 		});
 		return root;
 	}
+
+	public void sendMessage(View view) {
+
+	}
 }
