@@ -16,4 +16,9 @@
 		android:icon="@android:drawable/ic_menu_day"
 		android:title="@string/title_notifications" />
 
+	<item
+		android:id="@+id/profile_notifications"
+		android:icon="@drawable/ic_person_outline_24px"
+		android:title="@string/title_profile" />
+
 </menu>

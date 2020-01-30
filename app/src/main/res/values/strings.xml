@@ -3,7 +3,8 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">My Door</string>
     <string name="title_notifications">Reminders</string>
-	<string name="delete">Delete</string>
-	<string name="reminder_default">This is a reminder</string>
-	<string name="add_a_reminder">Add a reminder</string>
+    <string name="title_profile">Profile</string>
+    <string name="delete">Delete</string>
+    <string name="reminder_default">This is a reminder</string>
+    <string name="add_a_reminder">Add a reminder</string>
 </resources>
