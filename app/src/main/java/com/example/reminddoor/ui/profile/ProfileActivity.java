@@ -1,8 +1,10 @@
-package com.example.reminddoor;
+package com.example.reminddoor.ui.profile;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.reminddoor.R;
 
 public class ProfileActivity extends AppCompatActivity {
 
