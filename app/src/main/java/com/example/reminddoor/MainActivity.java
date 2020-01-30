@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
 		
 		setContentView(R.layout.activity_main);
 		BottomNavigationView navView = findViewById(R.id.nav_view);
-		navView.setOnNavigationItemSelectedListener(navListener);
 		// Passing each menu ID as a set of Ids because each
 		// menu should be considered as top level destinations.
 		AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
@@ -47,34 +46,6 @@ public class MainActivity extends AppCompatActivity {
 		NavigationUI.setupWithNavController(navView, navController);
 
 	}
-
-	private BottomNavigationView.OnNavigationItemSelectedListener navListener =
-			new BottomNavigationView.OnNavigationItemSelectedListener() {
-				@Override
-				public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-					Fragment selectedFragment = null;
-
-					switch(item.getItemId()) {
-						case R.id.navigation_home:
-							selectedFragment = new HomeFragment();
-							break;
-						case R.id.navigation_notifications:
-							selectedFragment = new RemindersFragment();
-							break;
-						case R.id.navigation_dashboard:
-							selectedFragment = new DashboardFragment();
-							break;
-						case R.id.navigation_profile:
-							selectedFragment = new ProfileFragment();
-							break;
-
-					}
-
-					getSupportFragmentManager().beginTransaction().replace(R.id.navigation_home, selectedFragment).commit();
-					return true;
-				}
-			};
 
 	@Override
 	protected void onStop() {
