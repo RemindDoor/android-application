@@ -1,9 +1,9 @@
 package com.example.reminddoor;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
-import com.example.reminddoor.ui.notifications.list.NotificationList;
-import com.example.reminddoor.ui.notifications.list.dummy.DummyContent;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,7 +12,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-public class MainActivity extends AppCompatActivity implements NotificationList.OnNotificationListInteractionListener {
+public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +27,5 @@ public class MainActivity extends AppCompatActivity implements NotificationList.
 		NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
 		NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 		NavigationUI.setupWithNavController(navView, navController);
-	}
-	
-	@Override
-	public void onNotificationListSelected(DummyContent.NotificationListItem item) {
-	
 	}
 }

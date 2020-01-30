@@ -8,27 +8,26 @@
 		android:divider="@color/colorPrimary"
 		android:dividerPadding="5dp">
 
-	<TextView
-			android:id="@+id/content"
+	<ImageButton
+			android:id="@+id/imageButton"
+			android:layout_width="wrap_content"
+			android:layout_height="0dp"
+			android:layout_marginEnd="16dp"
+			android:background="#00FFFFFF"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:srcCompat="@android:drawable/btn_dialog" />
+
+	<EditText
+			android:id="@+id/editText"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="16dp"
-			android:text="This is a reminder"
-			android:textAppearance="?attr/textAppearanceListItem"
+			android:ems="10"
+			android:hint="@string/add_a_reminder"
+			android:inputType="textPersonName"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
-
-	<Button
-			android:id="@+id/button"
-			android:layout_width="wrap_content"
-			android:layout_height="0dp"
-			android:layout_marginTop="8dp"
-			android:layout_marginEnd="16dp"
-			android:layout_marginBottom="8dp"
-			android:background="@android:color/holo_red_light"
-			android:text="Delete"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

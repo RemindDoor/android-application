@@ -10,5 +10,5 @@
 		android:layout_marginRight="16dp"
 		android:scrollbarAlwaysDrawVerticalTrack="true"
 		app:layoutManager="LinearLayoutManager"
-		tools:context=".ui.notifications.list.NotificationList"
+		tools:context=".ui.notifications.list.RemindersList"
 		tools:listitem="@layout/notification_item" />
