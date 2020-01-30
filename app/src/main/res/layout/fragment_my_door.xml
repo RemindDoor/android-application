@@ -20,7 +20,9 @@
 			app:maxImageSize="50dp"
 			app:srcCompat="@android:drawable/ic_input_add" />
 
-	<androidx.recyclerview.widget.RecyclerView
+	<fragment
+			android:id="@+id/fragment3"
+			android:name="com.example.reminddoor.ui.dashboard.UsersList"
 			android:layout_width="0dp"
 			android:layout_height="0dp"
 			android:layout_marginStart="16dp"
@@ -31,4 +33,5 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
