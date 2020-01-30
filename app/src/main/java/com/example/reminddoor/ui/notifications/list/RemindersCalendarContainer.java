@@ -1,5 +1,7 @@
 package com.example.reminddoor.ui.notifications.list;
 
+import android.widget.EditText;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,9 +29,6 @@ public class RemindersCalendarContainer {
 	private static Map<String, List<RemindersListItem>> mValues = new HashMap<>();
 	
 	private static String currentSelectedDate;
-	
-	// Quite a hack. Prevents the calendar changing screens causing the text to think it's changed.
-	public static boolean ignoreTextChanges = false;
 	
 	public static void save(File f) {
 		File file = new File(f, "calendarValues");
@@ -87,12 +86,23 @@ public class RemindersCalendarContainer {
 	public static void addItem() {
 		mValues.get(currentSelectedDate).add(new RemindersListItem());
 	}
+	
+	public static void syncText() {
+		for (RemindersListItem item : mValues.get(currentSelectedDate)) {
+			item.sync();
+		}
+	}
+	
 	public static class RemindersListItem implements Serializable {
 		// Changing this may not immediately change the displayed string
 		public String content;
+		transient public EditText textBox;
 		
 		public String getDisplayedText() {
 			return content;
+		}
+		public void sync() {
+			content = textBox.getText().toString();
 		}
 	}
 	

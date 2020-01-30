@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.reminddoor.R;
 
@@ -24,10 +25,13 @@ public class RemindersListViewAdapter extends RecyclerView.Adapter<RemindersList
 		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_item, parent, false);
 		return new ViewHolder(view);
 	}
-	
+
 	@Override
 	public void onBindViewHolder(final ViewHolder holder, final int position) {
-		String text = RemindersCalendarContainer.getItem(position).getDisplayedText();
+		RemindersCalendarContainer.RemindersListItem reminder = RemindersCalendarContainer.getItem(position);
+		reminder.textBox = holder.mContentView;
+		String text = reminder.getDisplayedText();
+		
 		if (text != null && !text.equals("")) {
 			holder.mContentView.setText(text);
 		} else {
@@ -40,25 +44,6 @@ public class RemindersListViewAdapter extends RecyclerView.Adapter<RemindersList
 				RemindersCalendarContainer.removeItem(position);
 				notifyItemRemoved(position);
 				notifyItemRangeChanged(position, getItemCount());
-			}
-		});
-		
-		holder.mContentView.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-			
-			}
-			
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if (position < RemindersCalendarContainer.getSize() && !RemindersCalendarContainer.ignoreTextChanges) {
-					RemindersCalendarContainer.getItem(position).content = s.toString();
-				}
-			}
-			
-			@Override
-			public void afterTextChanged(Editable s) {
-			
 			}
 		});
 	}

@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.reminddoor.R;
+import com.example.reminddoor.assist.Util;
 import com.example.reminddoor.ui.notifications.list.RemindersCalendarContainer;
 import com.example.reminddoor.ui.notifications.list.RemindersList;
 import com.example.reminddoor.ui.notifications.list.RemindersListViewAdapter;
@@ -19,10 +20,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class RemindersFragment extends Fragment {
 
-	private RemindersViewModel remindersViewModel;
-
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		remindersViewModel = ViewModelProviders.of(this).get(RemindersViewModel.class);
 		final View root = inflater.inflate(R.layout.fragment_reminders, container, false);
 		FragmentManager fm = getChildFragmentManager();
 		final RemindersList list = (RemindersList) fm.findFragmentById(R.id.fragment2);
@@ -33,10 +31,9 @@ public class RemindersFragment extends Fragment {
 		calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
 			@Override
 			public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+				RemindersCalendarContainer.syncText();
 				RemindersCalendarContainer.updateDate(year, month, dayOfMonth);
-				RemindersCalendarContainer.ignoreTextChanges = true;
 				list.adapter.notifyDataSetChanged();
-				RemindersCalendarContainer.ignoreTextChanges = false;
 			}
 		});
 		

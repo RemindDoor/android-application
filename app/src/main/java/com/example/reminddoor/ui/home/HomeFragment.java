@@ -18,11 +18,9 @@ import com.example.reminddoor.ui.notifications.list.RemindersCalendarContainer;
 
 public class HomeFragment extends Fragment {
 
-	private HomeViewModel homeViewModel;
 	private boolean locked = true;
 
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		homeViewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
 		View root = inflater.inflate(R.layout.fragment_home, container, false);
 		
 		final ImageButton lockButton = root.findViewById(R.id.lockButton);
