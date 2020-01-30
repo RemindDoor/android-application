@@ -12,10 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.reminddoor.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class NotificationList extends Fragment {
+public class RemindersList extends Fragment {
 
-	public NotificationList() {
+	public RemindersList() {
 	}
 	
 	@Override
@@ -23,14 +24,18 @@ public class NotificationList extends Fragment {
 		super.onCreate(savedInstanceState);
 	}
 	
+	public RemindersListViewAdapter adapter;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.notification_list, container, false);
-		Context context = view.getContext();
+		View root = inflater.inflate(R.layout.notification_list, container, false);
+		Context context = root.getContext();
 		
-		RecyclerView recyclerView = (RecyclerView) view;
+		final RecyclerView recyclerView = (RecyclerView) root;
 		recyclerView.setLayoutManager(new LinearLayoutManager(context));
-		recyclerView.setAdapter(new NotificationListViewAdapter());
-		return view;
+		
+		adapter = new RemindersListViewAdapter();
+		recyclerView.setAdapter(adapter);
+		return root;
 	}
 }

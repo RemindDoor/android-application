@@ -3,27 +3,20 @@ package com.example.reminddoor.ui.notifications.list;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.text.method.KeyListener;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.reminddoor.R;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class NotificationListViewAdapter extends RecyclerView.Adapter<NotificationListViewAdapter.ViewHolder> {
-	
-	private static final List<NotificationListItem> mValues = new ArrayList<>();
-	
-	static {
-		for (int i = 0; i < 10; i++) {
-			mValues.add(new NotificationListItem("Item " + i));
-		}
-	}
+public class RemindersListViewAdapter extends RecyclerView.Adapter<RemindersListViewAdapter.ViewHolder> {
 	
 	@NonNull
 	@Override
@@ -34,40 +27,56 @@ public class NotificationListViewAdapter extends RecyclerView.Adapter<Notificati
 	
 	@Override
 	public void onBindViewHolder(final ViewHolder holder, final int position) {
-		holder.mContentView.setText(mValues.get(position).content);
+		String text = RemindersCalendarContainer.getItem(position).getDisplayedText();
+		if (text != null && !text.equals("")) {
+			holder.mContentView.setText(text);
+		} else {
+			holder.mContentView.setText("");
+		}
 		
 		holder.mButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mValues.remove(position);
+				RemindersCalendarContainer.removeItem(position);
 				notifyItemRemoved(position);
-				notifyItemRangeChanged(position,getItemCount());
+				notifyItemRangeChanged(position, getItemCount());
+			}
+		});
+		
+		holder.mContentView.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			
+			}
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (position < RemindersCalendarContainer.getSize() && !RemindersCalendarContainer.ignoreTextChanges) {
+					RemindersCalendarContainer.getItem(position).content = s.toString();
+				}
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+			
 			}
 		});
 	}
 	
 	@Override
 	public int getItemCount() {
-		return mValues.size();
-	}
-	
-	public static class NotificationListItem {
-		final String content;
-		
-		NotificationListItem(String content) {
-			this.content = content;
-		}
+		return RemindersCalendarContainer.getSize();
 	}
 	
 	class ViewHolder extends RecyclerView.ViewHolder {
 		final View mView;
-		final TextView mContentView;
+		final EditText mContentView;
 		final ImageButton mButton;
 		
 		ViewHolder(View view) {
 			super(view);
 			mView = view;
-			mContentView = view.findViewById(R.id.content);
+			mContentView = view.findViewById(R.id.editText);
 			mButton = view.findViewById(R.id.imageButton);
 		}
 	}
