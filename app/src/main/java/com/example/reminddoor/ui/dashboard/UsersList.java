@@ -23,7 +23,7 @@ public class UsersList extends Fragment {
 		super.onCreate(savedInstanceState);
 	}
 	
-	public RemindersListViewAdapter adapter;
+	public UsersListViewAdapter adapter;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,7 +33,7 @@ public class UsersList extends Fragment {
 		final RecyclerView recyclerView = (RecyclerView) root;
 		recyclerView.setLayoutManager(new LinearLayoutManager(context));
 		
-		adapter = new RemindersListViewAdapter();
+		adapter = new UsersListViewAdapter();
 		recyclerView.setAdapter(adapter);
 		return root;
 	}
