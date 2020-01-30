@@ -7,22 +7,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.reminddoor.ui.notifications.list.NotificationList.OnListFragmentInteractionListener;
-import com.example.reminddoor.ui.notifications.list.dummy.DummyContent.DummyItem;
+import com.example.reminddoor.R;
+import com.example.reminddoor.ui.notifications.list.NotificationList.OnNotificationListInteractionListener;
+import com.example.reminddoor.ui.notifications.list.dummy.DummyContent.NotificationListItem;
 
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
+ * {@link RecyclerView.Adapter} that can display a {@link NotificationListItem} and makes a call to the
+ * specified {@link OnNotificationListInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class NotificationListViewAdapter extends RecyclerView.Adapter<NotificationListViewAdapter.ViewHolder> {
 	
-	private final List<DummyItem> mValues;
-	private final OnListFragmentInteractionListener mListener;
+	private final List<NotificationListItem> mValues;
+	private final OnNotificationListInteractionListener mListener;
 	
-	public NotificationListViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+	public NotificationListViewAdapter(List<NotificationListItem> items, OnNotificationListInteractionListener listener) {
 		mValues = items;
 		mListener = listener;
 	}
@@ -37,7 +38,6 @@ public class NotificationListViewAdapter extends RecyclerView.Adapter<Notificati
 	@Override
 	public void onBindViewHolder(final ViewHolder holder, int position) {
 		holder.mItem = mValues.get(position);
-		holder.mIdView.setText(mValues.get(position).id);
 		holder.mContentView.setText(mValues.get(position).content);
 		
 		holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -46,7 +46,7 @@ public class NotificationListViewAdapter extends RecyclerView.Adapter<Notificati
 				if (null != mListener) {
 					// Notify the active callbacks interface (the activity, if the
 					// fragment is attached to one) that an item has been selected.
-					mListener.onListFragmentInteraction(holder.mItem);
+					mListener.onNotificationListSelected(holder.mItem);
 				}
 			}
 		});
@@ -59,14 +59,12 @@ public class NotificationListViewAdapter extends RecyclerView.Adapter<Notificati
 	
 	public class ViewHolder extends RecyclerView.ViewHolder {
 		public final View mView;
-		public final TextView mIdView;
 		public final TextView mContentView;
-		public DummyItem mItem;
+		public NotificationListItem mItem;
 		
 		public ViewHolder(View view) {
 			super(view);
 			mView = view;
-			mIdView = (TextView) view.findViewById(R.id.item_number);
 			mContentView = (TextView) view.findViewById(R.id.content);
 		}
 		
