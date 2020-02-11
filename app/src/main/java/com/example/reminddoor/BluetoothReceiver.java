@@ -19,23 +19,17 @@ public class BluetoothReceiver extends BroadcastReceiver {
         switch (action) {
             case BluetoothDevice.ACTION_ACL_CONNECTED: {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device.getAddress().equals(headphones.getAddress())) {
-                    //Do what you want
-                    System.out.println("Connected to bluetooth device");
-                    addImportantNotification(context);
-                }
+                System.out.println("A bluetooth device has connected!");
                 break;
             }
 
             case BluetoothDevice.ACTION_ACL_DISCONNECTED: {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 break;
             }
         }
     }
 
     private void addImportantNotification(Context context){
-
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
         Notification notification2 = new NotificationCompat.Builder(context, NotificationSetup.CHANNEL_1_ID)

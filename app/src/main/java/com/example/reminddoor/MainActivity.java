@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
 	private static final int REQUEST_ENABLE_BT = 1;
 
+	public static BluetoothAdapter bluetoothAdapter = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,18 +43,17 @@ public class MainActivity extends AppCompatActivity {
 		NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
 		NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 		NavigationUI.setupWithNavController(navView, navController);
-		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		BluetoothDevice headphones = bluetoothAdapter.getRemoteDevice("00:00:DD:01:A5:8E");
+		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (bluetoothAdapter == null) {
-			// Device doesn't support Bluetooth
+			System.out.println("This device does not support bluetooth!");
 		} else {
 			if (!bluetoothAdapter.isEnabled()) {
 				Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 				startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 
 				IntentFilter intentFilter = new IntentFilter();
-				intentFilter.addAction(headphones.ACTION_ACL_CONNECTED);
-				intentFilter.addAction(headphones.ACTION_ACL_DISCONNECTED);
+				intentFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+				intentFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
 			}
 		}
 	}
