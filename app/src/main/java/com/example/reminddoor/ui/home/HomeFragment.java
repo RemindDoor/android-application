@@ -23,11 +23,16 @@ public class HomeFragment extends Fragment {
 
 	private boolean locked = true;
 
+	private PinData myPin = new PinData();
+	String iv_str;
+
 	private Cipher cipher;
 	private ImageButton lockButton;
 
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_home, container, false);
+		iv_str = myPin.readFile("my_iv.txt", getActivity());
+
 
 		lockButton = root.findViewById(R.id.lockButton);
 		lockButton.setOnClickListener(new View.OnClickListener() {
@@ -48,31 +53,67 @@ public class HomeFragment extends Fragment {
 			}
 		});
 
-		// Set pin function
+
+		//===============================================================================
+		// Set Pin
+		Button set = root.findViewById(R.id.btn_set);
+		set.setOnClickListener(new View.OnClickListener(){
+			@Override
+			public void onClick(View v){
+				if (iv_str.isEmpty()){
+					SettingPinFragment setPin = new SettingPinFragment();
+					setPin.show(getActivity().getSupportFragmentManager(), "SetPin");
+				} else{
+					PinLoginFragment pinFragment = new PinLoginFragment();
+					pinFragment.show(getActivity().getSupportFragmentManager(),"EnterPin");
+					pinFragment.setPinSetting(new PinLoginFragment.PinSetting() {
+						@Override
+						public void checkPin(boolean isSucceed) {
+							if (isSucceed){
+								SettingPinFragment setPin = new SettingPinFragment();
+								setPin.show(getActivity().getSupportFragmentManager(), "SetPin");
+							} else {
+								Toast.makeText(getActivity(), "Failed!", Toast.LENGTH_SHORT).show();
+							}
+						}
+					});
+				}
+
+			}
+		});
+
+
+
+
+		//================================================================================
+		// Enter_pin function
 		final Button pin = root.findViewById(R.id.btn_pinLogin);
 		pin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-				PinLoginFragment pinFragment = new PinLoginFragment();
-				pinFragment.show(getActivity().getSupportFragmentManager(),"xxx");
+            	if (!locked)
+					Toast.makeText(getActivity(), "The Door is already unlocked", Toast.LENGTH_SHORT).show();
+            	if (!iv_str.isEmpty() && locked){
+					PinLoginFragment pinFragment = new PinLoginFragment();
+					pinFragment.show(getActivity().getSupportFragmentManager(),"EnterPin");
+					pinFragment.setPinSetting(new PinLoginFragment.PinSetting() {
+						@Override
+						public void checkPin(boolean isSucceed) {
+							if (isSucceed){
+								Toast.makeText(getActivity(), "Succeed!", Toast.LENGTH_SHORT).show();
+								lockButton.setImageResource(R.drawable.unlocked);
+								locked = !locked;
+							} else {
+								Toast.makeText(getActivity(), "Failed!", Toast.LENGTH_SHORT).show();
+							}
+						}
+					});
+				} else {
+            		Toast.makeText(getActivity(), "Please set a Pin first", Toast.LENGTH_SHORT).show();
+				}
+
             }
         });
-
-        final Button fingerprint = root.findViewById(R.id.btn_fingerprint);
-        // Set fingerprint function
-		fingerprint.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-			    if (FingerprintUtil.supportFingerprint(getActivity())){
-					FingerprintUtil.initKey();
-					cipher = FingerprintUtil.initCipher();
-                }
-			    if (cipher != null){
-					authenticateFingerprint(cipher);
-				}
-			}
-		});
-		
 		
 		return root;
 	}

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		xmlns:app="http://schemas.android.com/apk/res-auto"
-		android:layout_width="match_parent"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
 	<ImageButton
@@ -18,26 +19,26 @@
 			app:srcCompat="@drawable/locked" />
 
 	<Button
-		android:id="@+id/btn_fingerprint"
+		android:id="@+id/btn_pinLogin"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="20dp"
-		android:text="Fingerprint"
+		android:layout_marginTop="32dp"
+		android:text="PIN"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.498"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/lockButton" />
 
 	<Button
-		android:id="@+id/btn_pinLogin"
+		android:id="@+id/btn_set"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="20dp"
-		android:text="PIN"
+		android:text="Set Pin"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.498"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/btn_fingerprint" />
+		app:layout_constraintTop_toBottomOf="@+id/btn_pinLogin" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

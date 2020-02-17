@@ -23,7 +23,7 @@ public class FingerprintUtil {
 
     private static final String DEFAULT_KEY_NAME = "default_key";
 
-
+    //=============================Fingerprint part===========================================
     public static boolean supportFingerprint(Context context){
         if (Build.VERSION.SDK_INT < 23){
             Toast.makeText(context, "Android version is too low", Toast.LENGTH_SHORT).show();
