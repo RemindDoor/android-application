@@ -41,7 +41,6 @@ public class HomeFragment extends Fragment {
 				if (locked) {
 					lockButton.setImageResource(R.drawable.locked);
 					ArduinoCommunication.closeLock();
-					System.out.println(Arrays.toString(KeyStorage.getSecretKey(getActivity().getApplicationContext())));
 				} else {
 					lockButton.setImageResource(R.drawable.unlocked);
 					ArduinoCommunication.openLock();

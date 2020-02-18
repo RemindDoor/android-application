@@ -9,22 +9,7 @@ import androidx.security.crypto.MasterKeys;
 import com.yakivmospan.scytale.ErrorListener;
 import com.yakivmospan.scytale.Store;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 public class KeyStorage {
 	public static byte[] getSecretKey(Context applicationContext){
