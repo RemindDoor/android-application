@@ -1,5 +1,7 @@
 package com.example.reminddoor.ui.home;
 
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +14,10 @@ import androidx.annotation.NonNull;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.reminddoor.MainActivity;
 import com.example.reminddoor.R;
 import com.example.reminddoor.assist.FingerprintUtil;
+import com.example.reminddoor.bluetooth.ArduinoCommunication;
 
 import javax.crypto.Cipher;
 
@@ -48,6 +52,7 @@ public class HomeFragment extends Fragment {
 					}
 				} else {
 					lockButton.setImageResource(R.drawable.locked);
+					ArduinoCommunication.closeLock();
 					locked = !locked;
 				}
 			}
@@ -130,6 +135,7 @@ public class HomeFragment extends Fragment {
 				if (isSucceed){
 					Toast.makeText(getActivity(), "Succeed!", Toast.LENGTH_SHORT).show();
 					lockButton.setImageResource(R.drawable.unlocked);
+					ArduinoCommunication.openLock();
 					locked = !locked;
 				} else {
                     Toast.makeText(getActivity(), "Failed!", Toast.LENGTH_SHORT).show();
