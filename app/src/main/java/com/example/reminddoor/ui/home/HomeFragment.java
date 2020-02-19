@@ -3,6 +3,7 @@ package com.example.reminddoor.ui.home;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
+import android.util.AndroidException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -106,6 +107,7 @@ public class HomeFragment extends Fragment {
 						public void checkPin(boolean isSucceed) {
 							if (isSucceed){
 								Toast.makeText(getActivity(), "Succeed!", Toast.LENGTH_SHORT).show();
+								ArduinoCommunication.openLock();
 								lockButton.setImageResource(R.drawable.unlocked);
 								locked = !locked;
 							} else {

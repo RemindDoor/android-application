@@ -3,6 +3,7 @@ package com.example.reminddoor;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 	private static final int REQUEST_ENABLE_BT = 1;
 
 	public static BluetoothAdapter bluetoothAdapter = null;
+	public static BluetoothLeScanner BLEScanner = null;
 	
 	public static Context ctx = null;
 	
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 		ctx = this.getApplicationContext();
 		
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		BLEScanner = bluetoothAdapter.getBluetoothLeScanner();
 		if (bluetoothAdapter == null) {
 			System.out.println("This device does not support bluetooth!");
 		} else {
