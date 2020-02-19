@@ -44,9 +44,12 @@ public class HomeFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				if (locked) {
+
 					if (FingerprintUtil.supportFingerprint(getActivity())){
 						FingerprintUtil.initKey();
 						cipher = FingerprintUtil.initCipher();
+					} else {
+						authenticatePin();
 					}
 					if (cipher != null){
 						authenticateFingerprint(cipher);
@@ -54,6 +57,7 @@ public class HomeFragment extends Fragment {
 				} else {
 					lockButton.setImageResource(R.drawable.locked);
 					ArduinoCommunication.closeLock();
+					Toast.makeText(getActivity(), "Locking door...", Toast.LENGTH_LONG).show();
 					locked = !locked;
 				}
 			}
@@ -90,8 +94,7 @@ public class HomeFragment extends Fragment {
 
 
 
-
-		//================================================================================
+	/*	//================================================================================
 		// Enter_pin function
 		final Button pin = root.findViewById(R.id.btn_pinLogin);
 		pin.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +123,7 @@ public class HomeFragment extends Fragment {
 				}
 
             }
-        });
+        }); */
 		
 		return root;
 	}
@@ -135,17 +138,43 @@ public class HomeFragment extends Fragment {
 			@Override
 			public void onFingerprint(boolean isSucceed) {
 				if (isSucceed){
-					Toast.makeText(getActivity(), "Succeed!", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getActivity(), "Succeed!", Toast.LENGTH_LONG).show();
 					lockButton.setImageResource(R.drawable.unlocked);
+					Toast.makeText(getActivity(), "Scanning for door...", Toast.LENGTH_LONG).show();
 					ArduinoCommunication.openLock();
 					locked = !locked;
 				} else {
                     Toast.makeText(getActivity(), "Failed!", Toast.LENGTH_SHORT).show();
+                    authenticatePin();
 				}
 			}
 		});
 
 	}
 
+	private void authenticatePin() {
+		if (!locked)
+			Toast.makeText(getActivity(), "The Door is already unlocked", Toast.LENGTH_SHORT).show();
+		if (!iv_str.isEmpty() && locked) {
+			PinLoginFragment pinFragment = new PinLoginFragment();
+			pinFragment.show(getActivity().getSupportFragmentManager(), "EnterPin");
+			pinFragment.setPinSetting(new PinLoginFragment.PinSetting() {
+				@Override
+				public void checkPin(boolean isSucceed) {
+					if (isSucceed) {
+						Toast.makeText(getActivity(), "Succeed!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(getActivity(), "Scanning for door...", Toast.LENGTH_LONG).show();
+						ArduinoCommunication.openLock();
+						lockButton.setImageResource(R.drawable.unlocked);
+						locked = !locked;
+					} else {
+						Toast.makeText(getActivity(), "Failed!", Toast.LENGTH_SHORT).show();
+					}
+				}
+			});
+		} else {
+			Toast.makeText(getActivity(), "Please set a Pin first", Toast.LENGTH_SHORT).show();
+		}
+	}
 
 }

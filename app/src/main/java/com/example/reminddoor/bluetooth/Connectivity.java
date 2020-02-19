@@ -10,10 +10,14 @@ import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.example.reminddoor.MainActivity;
+import com.example.reminddoor.ui.home.HomeFragment;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -90,6 +94,7 @@ public class Connectivity {
 		toSend = b;
 		MainActivity.BLEScanner.startScan(leScanCallback);
 	}
+
 
 	private static ScanCallback leScanCallback = new ScanCallback() {
 		@Override
