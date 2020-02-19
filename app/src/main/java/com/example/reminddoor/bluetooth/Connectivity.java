@@ -8,6 +8,9 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
+import android.bluetooth.*;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.graphics.Color;
 import android.util.Log;
 
@@ -86,18 +89,17 @@ public class Connectivity {
 //		}
 		
 		toSend = b;
-		MainActivity.bluetoothAdapter.startLeScan(leScanCallback);
+		MainActivity.BLEScanner.startScan(leScanCallback);
 	}
 	
-	private static BluetoothAdapter.LeScanCallback leScanCallback =
-			new BluetoothAdapter.LeScanCallback() {
-				@Override
-				public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-					if (device.getName() == null) return;
-					if (device.getName().equals("ButtonLED")) {
-						MainActivity.bluetoothAdapter.stopLeScan(leScanCallback);
-						
-						device.connectGatt(MainActivity.ctx, true, mGattCallback);
+	private static ScanCallback leScanCallback = new ScanCallback() {
+			@Override
+			public void onScanResult(int callbackType, ScanResult result) {
+					if (result.getDevice().getName() == null) return;
+					if (result.getDevice().getAddress().equals("A4:CF:12:8B:D5:12")) {
+						MainActivity.BLEScanner.stopScan(leScanCallback);
+
+						result.getDevice().connectGatt(MainActivity.ctx, true, mGattCallback);
 					}
 				}
 			};
