@@ -41,7 +41,11 @@ public class HomeFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				if (locked) {
+					if(BiometricUtils.isSdkVersionSupported() &&
+					BiometricUtils.isHardwareSupported(getContext()) && BiometricUtils.isFingerprintAvailable(getContext())
+					&& BiometricUtils.isPermissionGranted(getContext()))
 						authenticateFingerprint();
+					else authenticatePin();
 				} else {
 					toggleLock();
 				}
