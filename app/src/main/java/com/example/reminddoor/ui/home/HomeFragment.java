@@ -1,7 +1,6 @@
 package com.example.reminddoor.ui.home;
 
 import android.os.Bundle;
-import android.os.CancellationSignal;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,8 +30,6 @@ public class HomeFragment extends Fragment {
 
 	private Cipher cipher;
 	private ImageButton lockButton;
-
-	BiometricManager bioManager;
 
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_home, container, false);
@@ -90,13 +87,13 @@ public class HomeFragment extends Fragment {
 	private void authenticateFingerprint() {
 		//This method will attempt to autheticate via biometrics, and will call PIN verification if this fails for any reason
 		if(!locked) Toast.makeText(getActivity(), "The Door is already unlocked", Toast.LENGTH_SHORT).show();
-		bioManager = new BiometricManager.BiometricBuilder(getContext())
+		new BiometricManager.BiometricBuilder(getContext())
 				.setTitle("Authentication")
 				.setSubtitle("RemindDoor needs to confirm you're a registered user")
 				.setDescription("Please validate via biometrics")
-				.setNegativeButtonText("Try PIN instead")
-				.build();
-		bioManager.authenticate(biometricCallback);
+				.setNegativeButtonText("Add a cancel button")
+				.build()
+				.authenticate(biometricCallback);
 	}
 
 	BiometricCallback biometricCallback = new BiometricCallback() {
@@ -123,7 +120,7 @@ public class HomeFragment extends Fragment {
 		@Override
 		public void onAuthenticationFailed() {
 			Log.e("Biometrics","Fingerprint not recognized");
-			this.onAuthenticationCancelled();
+			authenticatePin();
 		}
 
 		@Override
@@ -140,11 +137,13 @@ public class HomeFragment extends Fragment {
 
 		@Override
 		public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+			biometricCallback.onAuthenticationHelp(helpCode, helpString);
 		}
 
 		@Override
 		public void onAuthenticationError(int errorCode, CharSequence errString) {
-			}
+			biometricCallback.onAuthenticationError(errorCode, errString);
+		}
 	};
 
 
