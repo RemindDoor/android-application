@@ -13,11 +13,9 @@ import androidx.annotation.NonNull;
 
 import androidx.fragment.app.Fragment;
 
+import com.an.biometric.*;
 import com.example.reminddoor.R;
 import com.example.reminddoor.bluetooth.ArduinoCommunication;
-
-import javax.crypto.Cipher;
-import com.an.biometric.*;
 
 
 
@@ -27,8 +25,6 @@ public class HomeFragment extends Fragment {
 
 	private PinData myPin = new PinData();
 	String iv_str;
-
-	private Cipher cipher;
 	private ImageButton lockButton;
 
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,8 +37,8 @@ public class HomeFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				if (locked) {
-					if(BiometricUtils.isSdkVersionSupported() &&
-					BiometricUtils.isHardwareSupported(getContext()) && BiometricUtils.isFingerprintAvailable(getContext())
+					if(BiometricUtils.isSdkVersionSupported()
+					&& BiometricUtils.isHardwareSupported(getContext()) && BiometricUtils.isFingerprintAvailable(getContext())
 					&& BiometricUtils.isPermissionGranted(getContext()))
 						authenticateFingerprint();
 					else authenticatePin();
@@ -87,65 +83,68 @@ public class HomeFragment extends Fragment {
 	private void authenticateFingerprint() {
 		//This method will attempt to autheticate via biometrics, and will call PIN verification if this fails for any reason
 		if(!locked) Toast.makeText(getActivity(), "The Door is already unlocked", Toast.LENGTH_SHORT).show();
-		new BiometricManager.BiometricBuilder(getContext())
+		BiometricManager bioM = new BiometricManager.BiometricBuilder(getContext())
 				.setTitle("Authentication")
 				.setSubtitle("RemindDoor needs to confirm you're a registered user")
 				.setDescription("Please validate via biometrics")
-				.setNegativeButtonText("Add a cancel button")
-				.build()
-				.authenticate(biometricCallback);
+				.setNegativeButtonText("Try PIN Instead")
+				.build();
+				bioM.authenticate(biometricCallback);
 	}
 
 	BiometricCallback biometricCallback = new BiometricCallback() {
 		@Override
 		public void onSdkVersionNotSupported() {
-			authenticatePin();
+			Toast.makeText(getActivity(), "SDK Version not supported", Toast.LENGTH_LONG).show();
 		}
 
 		@Override
-		public void onBiometricAuthenticationNotSupported() { authenticatePin(); }
+		public void onBiometricAuthenticationNotSupported() {
+			Toast.makeText(getActivity(), "Authentication not supported", Toast.LENGTH_LONG).show();
+		}
 
 		@Override
-		public void onBiometricAuthenticationNotAvailable() { authenticatePin(); }
+		public void onBiometricAuthenticationNotAvailable() {
+			Toast.makeText(getActivity(), "Authentication not available", Toast.LENGTH_LONG).show();
+		}
 
 		@Override
-		public void onBiometricAuthenticationPermissionNotGranted() { authenticatePin(); }
+		public void onBiometricAuthenticationPermissionNotGranted() {
+			Toast.makeText(getActivity(), "Authentication not allowed", Toast.LENGTH_LONG).show();
+		}
 
 		@Override
 		public void onBiometricAuthenticationInternalError(String error) {
-			Log.e("Biometrics", error);
-			authenticatePin();
+			Log.e("BIOMETRICS","Internal Bio Auth Error");
 		}
 
 		@Override
 		public void onAuthenticationFailed() {
-			Log.e("Biometrics","Fingerprint not recognized");
-			authenticatePin();
+		    Log.e("BIOMETRICS","Authentication doesn't match our records");
 		}
 
 		@Override
 		public void onAuthenticationCancelled() {
-			Log.d("Biometrics", "Fingerprint authentication cancelled by user");
+		    Log.d("Biometrics","Authentication cancelled- user wants to use PIN");
 			authenticatePin();
 		}
 
 		@Override
 		public void onAuthenticationSuccessful() {
-			Log.d("Biometrics","User successfully autheticated via biometrics");
+			Toast.makeText(getActivity(),"Toggling lock...", Toast.LENGTH_SHORT);
 			toggleLock();
 		}
 
 		@Override
 		public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
-			biometricCallback.onAuthenticationHelp(helpCode, helpString);
+		    Log.d("Biometrics","Auth non-fatal "+helpCode+" with helpString \""+helpString+"\"");
 		}
 
 		@Override
 		public void onAuthenticationError(int errorCode, CharSequence errString) {
-			biometricCallback.onAuthenticationError(errorCode, errString);
+		    Log.e("Biometrics","Auth error!");
 		}
 	};
-
 
 	private void authenticatePin() {
 		if (!locked)
