@@ -47,13 +47,18 @@ public class Connectivity {
 				.build();
 
 		System.out.println(Util.getCurrentTime() + "Started to scan");
+		MainActivity.bluetoothAdapter.setName("This is a name");
 		if (bluetoothDevice == null) {
 			MainActivity.BLEScanner.startScan(Collections.singletonList(filter), settings, leScanCallback);
 		} else {
-			bluetoothDevice.connectGatt(MainActivity.ctx, false, mGattCallback);
+			connectG();
 		}
 	}
 
+
+	private static void connectG() {
+		bluetoothDevice.connectGatt(MainActivity.ctx, false, mGattCallback);
+	}
 
 	private static ScanCallback leScanCallback = new ScanCallback() {
 		@Override
@@ -64,7 +69,7 @@ public class Connectivity {
 
 			if (bluetoothDevice == null) {
 				bluetoothDevice = result.getDevice();
-				bluetoothDevice.connectGatt(MainActivity.ctx, false, mGattCallback);
+				connectG();
 			}
 		}
 	};
@@ -77,7 +82,9 @@ public class Connectivity {
 				case BluetoothProfile.STATE_CONNECTED:
 					System.out.println(Util.getCurrentTime() + "Connected!");
 					Log.d("BLED-GATT", "STATE_CONNECTED");
-					gatt.discoverServices();
+					System.out.println("Yeeeeeeeeeee" + gatt.discoverServices());
+					gatt.disconnect();
+					gatt.close();
 					break;
 				case BluetoothProfile.STATE_DISCONNECTED:
 					Log.d("BLED-GATT", "STATE_DISCONNECTED");
