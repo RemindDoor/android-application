@@ -9,7 +9,9 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
@@ -17,9 +19,14 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.reminddoor.MainActivity;
+import com.example.reminddoor.assist.Util;
 import com.example.reminddoor.ui.home.HomeFragment;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 public class Connectivity {
@@ -92,7 +99,17 @@ public class Connectivity {
 //		}
 		
 		toSend = b;
-		MainActivity.BLEScanner.startScan(leScanCallback);
+		ScanFilter.Builder builder = new ScanFilter.Builder();
+		builder.setDeviceAddress("A4:CF:12:8B:D5:12");
+		ScanFilter filter = builder.build();
+
+		ScanSettings settings = new ScanSettings.Builder()
+				.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+				.setReportDelay(0)
+				.build();
+
+		System.out.println(Util.getCurrentTime() + "Started to scan");
+		MainActivity.BLEScanner.startScan(Collections.singletonList(filter), settings, leScanCallback);
 	}
 
 
@@ -100,21 +117,20 @@ public class Connectivity {
 		@Override
 		public void onScanResult(int callbackType, ScanResult result) {
 			if (result.getDevice().getName() == null) return;
-			if (result.getDevice().getAddress().equals("A4:CF:12:8B:D5:12")) {
-				MainActivity.BLEScanner.stopScan(leScanCallback);
+			System.out.println(Util.getCurrentTime() + " Found the device! " + result.getDevice().getName());
+			MainActivity.BLEScanner.stopScan(leScanCallback);
 
-				result.getDevice().connectGatt(MainActivity.ctx, true, mGattCallback);
-			}
+			result.getDevice().connectGatt(MainActivity.ctx, false, mGattCallback);
 		}
 	};
 	
 	private static BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
 		@Override
 		public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-			System.out.println("Connection state change!");
-			
+
 			switch (newState) {
 				case BluetoothProfile.STATE_CONNECTED:
+					System.out.println(Util.getCurrentTime() + "Connected!");
 					Log.d("BLED-GATT", "STATE_CONNECTED");
 					gatt.discoverServices();
 					break;
@@ -126,18 +142,15 @@ public class Connectivity {
 					Log.d("BLED-GATT", "STATE_OTHER");
 			}
 		}
-		
+
 		@Override
 		public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-			System.out.println("Woo!");
-			//Now we can start reading/writing characteristics
-			
 			for (BluetoothGattService service: gatt.getServices()) {
-				System.out.println(service.getUuid());
 				for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
 					if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
 						characteristic.setValue(toSend);
 						gatt.writeCharacteristic(characteristic);
+						System.out.println(Util.getCurrentTime() + "Sent data finally!");
 						gatt.disconnect();
 					}
 				}
