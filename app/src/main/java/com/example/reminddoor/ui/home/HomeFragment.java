@@ -36,15 +36,17 @@ public class HomeFragment extends Fragment {
 		lockButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (locked) {
-					if(BiometricUtils.isSdkVersionSupported()
-					&& BiometricUtils.isHardwareSupported(getContext()) && BiometricUtils.isFingerprintAvailable(getContext())
-					&& BiometricUtils.isPermissionGranted(getContext()))
-						authenticateFingerprint();
-					else authenticatePin();
-				} else {
-					toggleLock();
-				}
+				toggleLock();
+				//TODO reenable
+//				if (locked) {
+//					if(BiometricUtils.isSdkVersionSupported()
+//					&& BiometricUtils.isHardwareSupported(getContext()) && BiometricUtils.isFingerprintAvailable(getContext())
+//					&& BiometricUtils.isPermissionGranted(getContext()))
+//						authenticateFingerprint();
+//					else authenticatePin();
+//				} else {
+//					toggleLock();
+//				}
 			}
 		});
 
