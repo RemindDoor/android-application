@@ -94,7 +94,7 @@ public class PinData {
         FileInputStream fis = null;
         String msg = "";
         try {
-            fis = context.openFileInput(filename);
+	        fis = context.openFileInput(filename);
             InputStreamReader isr = new InputStreamReader(fis);
             BufferedReader br = new BufferedReader(isr);
             StringBuilder sb = new StringBuilder();
@@ -107,7 +107,7 @@ public class PinData {
             // sb: byte[]
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            return ""; // We have no set pin.
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
