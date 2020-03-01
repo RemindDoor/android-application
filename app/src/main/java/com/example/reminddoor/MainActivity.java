@@ -9,11 +9,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.example.reminddoor.ui.barcode.showQRCode_fragment;
 import com.example.reminddoor.ui.notifications.list.RemindersCalendarContainer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -23,11 +28,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
 public class MainActivity extends AppCompatActivity {
 
 	private static final int REQUEST_ENABLE_BT = 1;
@@ -36,6 +36,32 @@ public class MainActivity extends AppCompatActivity {
 	public static BluetoothLeScanner BLEScanner = null;
 	
 	public static Context ctx = null;
+
+	private String msg = "For QR code";
+
+	// Menu part
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.top_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		switch (item.getItemId()) {
+			case R.id.menu_qrcode:
+				showQRCode_fragment show_fragment = new showQRCode_fragment(msg);
+				show_fragment.show(this.getSupportFragmentManager(), "QR_Code");
+				return true;
+			case R.id.menu_scan:
+				scan();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -89,5 +115,33 @@ public class MainActivity extends AppCompatActivity {
 		super.onStop();
 		
 		RemindersCalendarContainer.save(getDir("data", MODE_PRIVATE));
+	}
+
+	private void scan(){
+		IntentIntegrator integrator = new IntentIntegrator(this);
+		integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE); // Barcode type: only QR_code
+		integrator.setPrompt("Scan a barcode");
+		integrator.setOrientationLocked(true); // lock orientation
+		integrator.setCameraId(0);  // Use a specific camera of the device, 0 - back camera, 1 - front
+		integrator.setBeepEnabled(false); // beep On/Off
+		integrator.setBarcodeImageEnabled(false); // save Barcode on local
+		integrator.initiateScan();
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+		if(result != null) {
+			if(result.getContents() == null) {
+				String msg = "Cancelled";
+				Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+
+			} else {
+				String msg = "Scanned: " + result.getContents();
+				Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+			}
+
+
+		}
 	}
 }
