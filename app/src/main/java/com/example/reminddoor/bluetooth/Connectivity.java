@@ -12,12 +12,13 @@ import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.util.Log;
 
+import androidx.core.util.Consumer;
+
 import com.example.reminddoor.MainActivity;
 import com.example.reminddoor.assist.Util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -28,6 +29,7 @@ public class Connectivity {
 	static int toSendPosition = 0;
 	static final int SIZE = 20;
 	static boolean done = false;
+	static Consumer<byte[]> byteEater;
 	
 	private static byte[] buildData(byte protocol, byte[] inputBytes) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -61,7 +63,19 @@ public class Connectivity {
 		return Util.encrypt(bytes.toByteArray(), Util.getKey());
 	}
 	
-	public static void sendData(byte protocol, byte[] byteArray) {
+	public static void sendData(byte protocol, byte[] byteArray, Consumer<byte[]> consumer) {
+		if (consumer == null) {
+			// Essentially do nothing.
+			byteEater = new Consumer<byte[]>() {
+				@Override
+				public void accept(byte[] bytes) {
+				
+				}
+			};
+		} else {
+			byteEater = consumer;
+		}
+		
 		try {
 			toSend = buildData(protocol, byteArray);
 		} catch (IOException e) {
@@ -169,8 +183,16 @@ public class Connectivity {
 		
 		@Override
 		public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-			String received = new String(characteristic.getValue());
-			System.out.println("Received from Arduino: " + received);
+			byte[] received = characteristic.getValue();
+			
+			if (new String(received).equals("The request was denied.")) {
+				gatt.disconnect();
+				throw new RuntimeException("The request was denied!");
+			}
+			
+			System.out.println("Received from Arduino: " + new String(received));
+			System.out.println("Length: " + characteristic.getValue().length);
+			byteEater.accept(received);
 			gatt.disconnect();
 		}
 	};

@@ -57,9 +57,8 @@ public class Util {
 		return getGenerator().nextLong();
 	}
 	
+	public static byte[] key = new byte[16];
 	public static SecretKey getKey() {
-		byte[] key = new byte[16];
-//		getGenerator().nextBytes(key);
 		return new SecretKeySpec(key, "AES");
 	}
 	
@@ -68,23 +67,7 @@ public class Util {
 		try {
 			cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
 			byte[] ivbytes = new byte[16];
-			ivbytes[0] = 'a';
-			ivbytes[1] = 'b';
-			ivbytes[2] = 'b';
-//			ivbytes[3] = 'b';
-//			ivbytes[4] = 'b';
-//			ivbytes[5] = 'b';
-//			ivbytes[6] = 'b';
-			ivbytes[7] = 'b';
-//			ivbytes[8] = 'b';
-//			ivbytes[9] = 'b';
-//			ivbytes[10] = 'b';
-//			ivbytes[11] = 'b';
-//			ivbytes[12] = 'b';
-			ivbytes[13] = '\n';
-			ivbytes[14] = '\n';
-			ivbytes[15] = '\n';
-//			getGenerator().nextBytes(ivbytes);
+			getGenerator().nextBytes(ivbytes);
 			IvParameterSpec iv = new IvParameterSpec(ivbytes);
 			cipher.init(Cipher.ENCRYPT_MODE, key, iv);
 			byte[] cipherText = cipher.doFinal(bytes);

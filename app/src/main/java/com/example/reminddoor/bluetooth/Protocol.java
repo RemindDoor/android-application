@@ -1,11 +1,58 @@
 package com.example.reminddoor.bluetooth;
 
+import androidx.core.util.Consumer;
+import androidx.fragment.app.FragmentManager;
+
+import com.example.reminddoor.assist.Util;
+import com.example.reminddoor.ui.dashboard.DashboardFragment;
+
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 public class Protocol {
 	
+	private static final byte[] empty = new byte[]{};
+	
 	public static void unlockDoor() {
-		Connectivity.sendData(Type.GET_ALL_USERS.get(), "Please unlock the door.".getBytes());
+		Connectivity.sendData(Type.UNLOCK.get(), empty, null);
+	}
+	
+	public static void addUser(final FragmentManager fm) {
+		Consumer<byte[]> byteEater = new Consumer<byte[]>() {
+			@Override
+			public void accept(byte[] s) {
+				System.out.println("Received key successfully.");
+				System.out.println("The key is " + s.length + " bytes long");
+				
+				DashboardFragment.updateUsersList(fm);
+//				Util.key = s;
+			}
+		};
+		
+		Connectivity.sendData(Type.NEW_USER.get(), "Richard Mullender              ".getBytes(), byteEater);
+	}
+	
+	public static void getUserList(final Consumer<ArrayList<String>> namesListConsumer) {
+		Consumer<byte[]> byteEater = new Consumer<byte[]>() {
+			@Override
+			public void accept(byte[] s) {
+				String[] splitNames = new String(s).split("\\|");
+				
+				ArrayList<String> names = new ArrayList<>();
+				for (String name : splitNames) {
+					if (name.length() > 0) {
+						names.add(name);
+					}
+				}
+				
+				namesListConsumer.accept(names);
+			}
+		};
+		Connectivity.sendData(Type.GET_ALL_USERS.get(), empty, byteEater);
+	}
+	
+	public static void generateUser() {
+	
 	}
 	
 	

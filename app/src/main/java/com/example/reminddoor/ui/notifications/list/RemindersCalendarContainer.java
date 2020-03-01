@@ -79,6 +79,10 @@ public class RemindersCalendarContainer {
 		mValues.get(currentSelectedDate).remove(position);
 	}
 	
+	public static void removeAll() {
+		mValues.get(currentSelectedDate).clear();
+	}
+	
 	public static RemindersListItem getItem(int position) {
 		return mValues.get(currentSelectedDate).get(position);
 	}
