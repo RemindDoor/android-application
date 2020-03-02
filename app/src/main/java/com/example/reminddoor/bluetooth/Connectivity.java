@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
+import javax.crypto.SecretKey;
+
 public class Connectivity {
 	private static BluetoothDevice bluetoothDevice = null;
 
@@ -31,7 +33,7 @@ public class Connectivity {
 	static boolean done = false;
 	static Consumer<byte[]> byteEater;
 	
-	private static byte[] buildData(byte protocol, byte[] inputBytes) throws IOException {
+	public static byte[] buildData(byte protocol, byte[] inputBytes) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		// Write the time to prevent packet duping attacks.
 		long time = System.currentTimeMillis();
@@ -60,27 +62,25 @@ public class Connectivity {
 			bytes.write(255);
 		}
 		
-		return Util.encrypt(bytes.toByteArray(), Util.getKey());
+		SecretKey key = Util.getKey();
+		
+		if (key == null) {
+			return null;
+		}
+		
+		return Util.encrypt(bytes.toByteArray(), key);
 	}
 	
-	public static void sendData(byte protocol, byte[] byteArray, Consumer<byte[]> consumer) {
+	public static void sendData(byte[] array, Consumer<byte[]> consumer) {
+		toSend = array;
+		
 		if (consumer == null) {
 			// Essentially do nothing.
-			byteEater = new Consumer<byte[]>() {
-				@Override
-				public void accept(byte[] bytes) {
-				
-				}
-			};
+			byteEater = bytes -> { };
 		} else {
 			byteEater = consumer;
 		}
 		
-		try {
-			toSend = buildData(protocol, byteArray);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		toSendPosition = 0;
 		done = false;
 		
@@ -99,6 +99,22 @@ public class Connectivity {
 			MainActivity.BLEScanner.startScan(Collections.singletonList(filter), settings, leScanCallback);
 		} else {
 			connectG();
+		}
+	}
+	
+	public static void sendData(byte protocol, byte[] byteArray, Consumer<byte[]> consumer) {
+		try {
+			byte[] data = buildData(protocol, byteArray);
+			
+			if (data != null) {
+				sendData(data, consumer);
+			} else {
+				// Kick the user back to the popup screen.
+				MainActivity.kickBackToDisable.run();
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -188,11 +204,14 @@ public class Connectivity {
 			if (new String(received).equals("The request was denied.")) {
 				gatt.disconnect();
 				throw new RuntimeException("The request was denied!");
+			} else if (new String(received).equals("The key is invalid.")) {
+				MainActivity.kickBackToDisable.run();
+				byteEater.accept(null);
+			} else {
+				System.out.println("Received from Arduino: " + new String(received));
+				System.out.println("Length: " + characteristic.getValue().length);
+				byteEater.accept(received);
 			}
-			
-			System.out.println("Received from Arduino: " + new String(received));
-			System.out.println("Length: " + characteristic.getValue().length);
-			byteEater.accept(received);
 			gatt.disconnect();
 		}
 	};

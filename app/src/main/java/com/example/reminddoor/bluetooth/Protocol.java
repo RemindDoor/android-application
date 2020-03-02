@@ -3,6 +3,7 @@ package com.example.reminddoor.bluetooth;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.reminddoor.MainActivity;
 import com.example.reminddoor.assist.Util;
 import com.example.reminddoor.ui.dashboard.DashboardFragment;
 
@@ -17,36 +18,33 @@ public class Protocol {
 		Connectivity.sendData(Type.UNLOCK.get(), empty, null);
 	}
 	
-	public static void addUser(final FragmentManager fm) {
-		Consumer<byte[]> byteEater = new Consumer<byte[]>() {
-			@Override
-			public void accept(byte[] s) {
-				System.out.println("Received key successfully.");
-				System.out.println("The key is " + s.length + " bytes long");
-				
+	public static void addUser(final FragmentManager fm, byte[] encryptedString) {
+		Consumer<byte[]> byteEater = s -> {
+			System.out.println("Received key.");
+			System.out.println("The key is " + s.length + " bytes long");
+
+			Util.setKey(s);
+			
+			if (MainActivity.currentFragment == MainActivity.BottomTab.DOOR) {
 				DashboardFragment.updateUsersList(fm);
-//				Util.key = s;
 			}
 		};
 		
-		Connectivity.sendData(Type.NEW_USER.get(), "Richard Mullender              ".getBytes(), byteEater);
+		Connectivity.sendData(encryptedString, byteEater);
 	}
 	
 	public static void getUserList(final Consumer<ArrayList<String>> namesListConsumer) {
-		Consumer<byte[]> byteEater = new Consumer<byte[]>() {
-			@Override
-			public void accept(byte[] s) {
-				String[] splitNames = new String(s).split("\\|");
-				
-				ArrayList<String> names = new ArrayList<>();
-				for (String name : splitNames) {
-					if (name.length() > 0) {
-						names.add(name);
-					}
+		Consumer<byte[]> byteEater = s -> {
+			String[] splitNames = new String(s).split("\\|");
+			
+			ArrayList<String> names = new ArrayList<>();
+			for (String name : splitNames) {
+				if (name.length() > 0) {
+					names.add(name);
 				}
-				
-				namesListConsumer.accept(names);
 			}
+			
+			namesListConsumer.accept(names);
 		};
 		Connectivity.sendData(Type.GET_ALL_USERS.get(), empty, byteEater);
 	}

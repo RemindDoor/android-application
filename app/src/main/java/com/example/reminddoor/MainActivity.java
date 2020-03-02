@@ -1,20 +1,28 @@
 package com.example.reminddoor;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.reminddoor.assist.Util;
+import com.example.reminddoor.bluetooth.Connectivity;
+import com.example.reminddoor.bluetooth.Protocol;
 import com.example.reminddoor.ui.barcode.showQRCode_fragment;
+import com.example.reminddoor.ui.home.DisabledFragment;
 import com.example.reminddoor.ui.notifications.list.RemindersCalendarContainer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -28,6 +36,9 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 public class MainActivity extends AppCompatActivity {
 
 	private static final int REQUEST_ENABLE_BT = 1;
@@ -36,9 +47,13 @@ public class MainActivity extends AppCompatActivity {
 	public static BluetoothLeScanner BLEScanner = null;
 	
 	public static Context ctx = null;
-
-	private String msg = "For QR code";
-
+	
+	public static BottomTab currentFragment = BottomTab.HOME;
+	
+	public enum BottomTab {
+		HOME, DOOR, REMINDERS
+	}
+	
 	// Menu part
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -47,14 +62,49 @@ public class MainActivity extends AppCompatActivity {
 		return true;
 	}
 
+	public void createQRCode() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Name of new user");
+
+		// Set up the input
+		final EditText input = new EditText(this);
+		// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+		input.setInputType(InputType.TYPE_CLASS_TEXT);
+		builder.setView(input);
+
+		// Set up the buttons
+		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				generateQR(input.getText().toString());
+			}
+		});
+		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		});
+		
+		builder.show();
+	}
+	
+	private void generateQR(String name) {
+		try {
+			byte[] paddedName = Util.padRight(name, 31).getBytes();
+			byte[] bytes = Connectivity.buildData(Protocol.Type.NEW_USER.get(), paddedName);
+			String toSend = new String(bytes, StandardCharsets.ISO_8859_1);
+			showQRCode_fragment show_fragment = new showQRCode_fragment(toSend);
+			show_fragment.show(this.getSupportFragmentManager(), "QR_Code");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
-			case R.id.menu_qrcode:
-				showQRCode_fragment show_fragment = new showQRCode_fragment(msg);
-				show_fragment.show(this.getSupportFragmentManager(), "QR_Code");
-				return true;
 			case R.id.menu_scan:
 				scan();
 				return true;
@@ -63,10 +113,23 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 	
+	public static Runnable kickBackToDisable;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		ctx = this.getApplicationContext();
 		RemindersCalendarContainer.load(getDir("data", MODE_PRIVATE));
+		
+		final MainActivity activity = this;
+		kickBackToDisable = () -> {
+			DisabledFragment show_fragment = new DisabledFragment();
+			show_fragment.show(activity.getSupportFragmentManager(), "Disabled.");
+		};
+		
+		if (Util.getKey() == null) {
+			kickBackToDisable.run();
+		}
 		
 		setContentView(R.layout.activity_main);
 		BottomNavigationView navView = findViewById(R.id.nav_view);
@@ -78,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
 		NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
 		NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 		NavigationUI.setupWithNavController(navView, navController);
+		
+//		Util.getKey();
 		
 		if (ContextCompat.checkSelfPermission(this,
 				Manifest.permission.ACCESS_FINE_LOCATION)
@@ -91,8 +156,6 @@ public class MainActivity extends AppCompatActivity {
 						1);
 			}
 		}
-		
-		ctx = this.getApplicationContext();
 		
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		BLEScanner = bluetoothAdapter.getBluetoothLeScanner();
@@ -117,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
 		RemindersCalendarContainer.save(getDir("data", MODE_PRIVATE));
 	}
 
-	private void scan(){
+	public void scan(){
 		IntentIntegrator integrator = new IntentIntegrator(this);
 		integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE); // Barcode type: only QR_code
 		integrator.setPrompt("Scan a barcode");
@@ -130,18 +193,20 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
 		IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-		if(result != null) {
-			if(result.getContents() == null) {
+		if (result != null) {
+			if (result.getContents() == null) {
 				String msg = "Cancelled";
 				Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-
+				
 			} else {
-				String msg = "Scanned: " + result.getContents();
-				Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+				// This should then just fire straight across bluetooth.
+				
+				String barcodeContents = result.getContents();
+				byte[] toSend = barcodeContents.getBytes(StandardCharsets.ISO_8859_1);
+				Protocol.addUser(getSupportFragmentManager(), toSend);
 			}
-
-
 		}
 	}
 }

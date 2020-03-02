@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.reminddoor.MainActivity;
 import com.example.reminddoor.R;
 import com.example.reminddoor.assist.Util;
 import com.example.reminddoor.ui.notifications.list.RemindersCalendarContainer;
@@ -24,7 +25,7 @@ public class RemindersFragment extends Fragment {
 		final View root = inflater.inflate(R.layout.fragment_reminders, container, false);
 		FragmentManager fm = getChildFragmentManager();
 		final RemindersList list = (RemindersList) fm.findFragmentById(R.id.fragment2);
-		
+		MainActivity.currentFragment = MainActivity.BottomTab.REMINDERS;
 		
 		CalendarView calendarView = root.findViewById(R.id.calendarView);
 		RemindersCalendarContainer.updateDate(calendarView.getDate());

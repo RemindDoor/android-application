@@ -70,13 +70,7 @@ public class SettingPinFragment extends DialogFragment{
             myPin.writeFile(filename_iv, iv_string, getActivity());
             myPin.writeFile(filename_pin, cipher, getActivity());
             Log.d(TAG, "iv: " + iv_string);
-
-
-
             dismiss();
-
-
-
         }
 
         @Override
