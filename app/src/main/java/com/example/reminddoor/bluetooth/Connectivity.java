@@ -1,5 +1,6 @@
 package com.example.reminddoor.bluetooth;
 
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -72,7 +73,14 @@ public class Connectivity {
 		return Util.encrypt(bytes.toByteArray(), key);
 	}
 	
+	static ProgressDialog nDialog = null;
 	public static void sendData(byte[] array, Consumer<byte[]> consumer) {
+		nDialog = new ProgressDialog(MainActivity.mainActivity);
+		nDialog.setMessage("Loading..");
+		nDialog.setIndeterminate(true);
+		nDialog.setCancelable(true);
+		nDialog.show();
+		
 		toSend = array;
 		
 		if (consumer == null) {
@@ -167,6 +175,10 @@ public class Connectivity {
 					break;
 				case BluetoothProfile.STATE_DISCONNECTED:
 					Log.d("BLED-GATT", "STATE_DISCONNECTED");
+					if (nDialog != null) {
+						nDialog.dismiss();
+						nDialog = null;
+					}
 					gatt.close();
 					break;
 				default:
@@ -201,6 +213,11 @@ public class Connectivity {
 		@Override
 		public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
 			byte[] received = characteristic.getValue();
+			
+			if (nDialog != null) {
+				nDialog.dismiss();
+				nDialog = null;
+			}
 			
 			if (new String(received).equals("The request was denied.")) {
 				gatt.disconnect();
