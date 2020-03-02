@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+	<Button
+			android:id="@+id/scan_qr_code"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="128dp"
+			android:text="Scan QR Code"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent" />
+
+	<TextView
+			android:id="@+id/textView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="You are not registered with a door. \n Scan a QR code or go through a guest link to get started."
+			android:textAlignment="center"
+			app:layout_constraintBottom_toTopOf="@+id/scan_qr_code"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintVertical_bias="0.87" />
+
+	<ImageView
+			android:id="@+id/imageView"
+			android:layout_width="356dp"
+			android:layout_height="384dp"
+			app:layout_constraintBottom_toTopOf="@+id/textView"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintVertical_bias="0.01999998"
+			app:srcCompat="@mipmap/remindoor_foreground" />
+</androidx.constraintlayout.widget.ConstraintLayout>

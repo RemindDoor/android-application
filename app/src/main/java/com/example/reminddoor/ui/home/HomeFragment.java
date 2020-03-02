@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.an.biometric.*;
+import com.example.reminddoor.MainActivity;
 import com.example.reminddoor.R;
 import com.example.reminddoor.bluetooth.ArduinoCommunication;
 
@@ -30,21 +31,23 @@ public class HomeFragment extends Fragment {
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_home, container, false);
 		iv_str = myPin.readFile("my_iv.txt", getActivity());
-
+		MainActivity.currentFragment = MainActivity.BottomTab.HOME;
 
 		lockButton = root.findViewById(R.id.lockButton);
 		lockButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (locked) {
-					if(BiometricUtils.isSdkVersionSupported()
-					&& BiometricUtils.isHardwareSupported(getContext()) && BiometricUtils.isFingerprintAvailable(getContext())
-					&& BiometricUtils.isPermissionGranted(getContext()))
-						authenticateFingerprint();
-					else authenticatePin();
-				} else {
-					toggleLock();
-				}
+				toggleLock();
+				//TODO reenable
+//				if (locked) {
+//					if(BiometricUtils.isSdkVersionSupported()
+//					&& BiometricUtils.isHardwareSupported(getContext()) && BiometricUtils.isFingerprintAvailable(getContext())
+//					&& BiometricUtils.isPermissionGranted(getContext()))
+//						authenticateFingerprint();
+//					else authenticatePin();
+//				} else {
+//					toggleLock();
+//				}
 			}
 		});
 
@@ -179,5 +182,6 @@ public class HomeFragment extends Fragment {
 			locked = !locked;
 		}
 	}
+
 
 }
