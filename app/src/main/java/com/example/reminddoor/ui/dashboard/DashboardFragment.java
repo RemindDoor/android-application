@@ -52,7 +52,7 @@ public class DashboardFragment extends Fragment {
 				RemindersCalendarContainer.addItem();
 				int newSize = RemindersCalendarContainer.getSize();
 				RemindersCalendarContainer.RemindersListItem item = RemindersCalendarContainer.getItem(newSize-1);
-				item.content = name;
+				item.content = name.trim();
 			}
 			if (list != null && list.getActivity() != null) {
 				list.getActivity().runOnUiThread(() -> list.adapter.notifyDataSetChanged());

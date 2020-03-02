@@ -11,6 +11,7 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.util.Consumer;
 
@@ -67,7 +68,7 @@ public class Connectivity {
 		if (key == null) {
 			return null;
 		}
-		
+		System.out.println("Encrypting with " + new String(key.getEncoded()));
 		return Util.encrypt(bytes.toByteArray(), key);
 	}
 	
@@ -203,7 +204,7 @@ public class Connectivity {
 			
 			if (new String(received).equals("The request was denied.")) {
 				gatt.disconnect();
-				throw new RuntimeException("The request was denied!");
+				byteEater.accept(null);
 			} else if (new String(received).equals("The key is invalid.")) {
 				MainActivity.kickBackToDisable.run();
 				byteEater.accept(null);

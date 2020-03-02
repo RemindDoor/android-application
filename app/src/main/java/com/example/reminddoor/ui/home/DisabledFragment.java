@@ -22,8 +22,8 @@ public class DisabledFragment extends DialogFragment {
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Material_Light_Dialog);
-		
 		dismiss = this::dismiss;
+		this.setCancelable(false);
 	}
 	
 	@Override

@@ -1,5 +1,7 @@
 package com.example.reminddoor.bluetooth;
 
+import android.widget.Toast;
+
 import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentManager;
 
@@ -20,9 +22,11 @@ public class Protocol {
 	
 	public static void addUser(final FragmentManager fm, byte[] encryptedString) {
 		Consumer<byte[]> byteEater = s -> {
-			System.out.println("Received key.");
-			System.out.println("The key is " + s.length + " bytes long");
-
+			if (s == null) {
+				Util.showToast("That QR code has timed out. Please create a new one and try again.");
+				return;
+			}
+			
 			Util.setKey(s);
 			
 			if (MainActivity.currentFragment == MainActivity.BottomTab.DOOR) {
@@ -35,6 +39,11 @@ public class Protocol {
 	
 	public static void getUserList(final Consumer<ArrayList<String>> namesListConsumer) {
 		Consumer<byte[]> byteEater = s -> {
+			if (s == null) {
+				Util.showToast("Your account is no longer valid with this door.");
+				return;
+			}
+			
 			String[] splitNames = new String(s).split("\\|");
 			
 			ArrayList<String> names = new ArrayList<>();
@@ -47,10 +56,6 @@ public class Protocol {
 			namesListConsumer.accept(names);
 		};
 		Connectivity.sendData(Type.GET_ALL_USERS.get(), empty, byteEater);
-	}
-	
-	public static void generateUser() {
-	
 	}
 	
 	

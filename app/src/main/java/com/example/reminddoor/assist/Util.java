@@ -8,6 +8,7 @@ import android.security.keystore.KeyProperties;
 import android.security.keystore.KeyProtection;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.example.reminddoor.MainActivity;
 import com.example.reminddoor.ui.home.DisabledFragment;
@@ -84,9 +85,7 @@ public class Util {
 		if (DisabledFragment.dismiss != null) {
 			DisabledFragment.dismiss.run();
 		}
-		System.out.println(Arrays.toString(key));
 		save(MainActivity.ctx.getDir("data", 0), key);
-		System.out.println(Arrays.toString(load(MainActivity.ctx.getDir("data", 0))));
 	}
 	
 	public static SecretKey getKey() {
@@ -97,6 +96,11 @@ public class Util {
 		}
 		
 		return new SecretKeySpec(key, "AES");
+	}
+	
+	public static void showToast(String msg) {
+		MainActivity.mainActivity.runOnUiThread(() -> Toast.makeText(MainActivity.ctx, msg, Toast.LENGTH_LONG).show());
+		
 	}
 	
 	private static void save(File f, byte[] data) {

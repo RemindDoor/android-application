@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 	public static BluetoothLeScanner BLEScanner = null;
 	
 	public static Context ctx = null;
+	public static MainActivity mainActivity;
 	
 	public static BottomTab currentFragment = BottomTab.HOME;
 	
@@ -76,7 +77,16 @@ public class MainActivity extends AppCompatActivity {
 		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				generateQR(input.getText().toString());
+				String text = input.getText().toString();
+				for (int i = 0; i < RemindersCalendarContainer.getSize(); i++) {
+					if (text.equals(RemindersCalendarContainer.getItem(i).content)) {
+						Toast.makeText(MainActivity.ctx, "This name is already taken.", Toast.LENGTH_LONG).show();
+						createQRCode();
+						return;
+					}
+				}
+				
+				generateQR(text);
 			}
 		});
 		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -118,13 +128,13 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mainActivity = this;
 		ctx = this.getApplicationContext();
 		RemindersCalendarContainer.load(getDir("data", MODE_PRIVATE));
 		
-		final MainActivity activity = this;
 		kickBackToDisable = () -> {
 			DisabledFragment show_fragment = new DisabledFragment();
-			show_fragment.show(activity.getSupportFragmentManager(), "Disabled.");
+			show_fragment.show(mainActivity.getSupportFragmentManager(), "Disabled.");
 		};
 		
 		if (Util.getKey() == null) {
