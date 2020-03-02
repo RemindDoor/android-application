@@ -2,15 +2,19 @@ package com.example.reminddoor;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.icu.util.Calendar;
+import android.icu.util.GregorianCalendar;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -18,8 +22,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.reminddoor.assist.Util;
@@ -32,9 +37,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Consumer;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -42,6 +49,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,39 +76,20 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	public void createQRCode() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Name of new user");
-
-		// Set up the input
 		final EditText input = new EditText(this);
-		// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
 		input.setInputType(InputType.TYPE_CLASS_TEXT);
-		builder.setView(input);
-
-		// Set up the buttons
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				String text = input.getText().toString();
-				for (int i = 0; i < RemindersCalendarContainer.getSize(); i++) {
-					if (text.equals(RemindersCalendarContainer.getItem(i).content)) {
-						Toast.makeText(MainActivity.ctx, "This name is already taken.", Toast.LENGTH_LONG).show();
-						createQRCode();
-						return;
-					}
+		Util.popupBox(this, "Name of new user", () -> {
+			String text = input.getText().toString();
+			for (int i = 0; i < RemindersCalendarContainer.getSize(); i++) {
+				if (text.equals(RemindersCalendarContainer.getItem(i).content)) {
+					Toast.makeText(MainActivity.ctx, "This name is already taken.", Toast.LENGTH_LONG).show();
+					createQRCode();
+					return;
 				}
-				
-				generateQR(text);
 			}
-		});
-		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-			}
-		});
-		
-		builder.show();
+			
+			generateQR(text);
+		}, input);
 	}
 	
 	private void generateQR(String name) {
@@ -115,10 +104,56 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 	
+	long startTime;
+	long endTime;
+	@RequiresApi(api = Build.VERSION_CODES.N)
+	private void guestAccess() {
+		final EditText input = new EditText(this);
+		input.setInputType(InputType.TYPE_CLASS_TEXT);
+		Util.popupBox(this, "Guest name", () -> {
+			Util.showToast("Please choose when their stay begins.");
+			showDateTimePicker(() -> {
+				startTime = date.getTimeInMillis();
+				Util.showToast("Please choose when their stay ends.");
+				showDateTimePicker(() -> {
+					endTime = date.getTimeInMillis();
+					
+					if (startTime > endTime) {
+						Util.showToast("Their stay must start before it ends");
+					} else {
+						try {
+							Protocol.createGuestAccount(input.getText().toString(), startTime, endTime);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				});
+			});
+		}, input);
+	}
+	
+	Calendar date;
+	@RequiresApi(api = Build.VERSION_CODES.N)
+	public void showDateTimePicker(Runnable runnable) {
+		final Calendar currentDate = Calendar.getInstance();
+		date = Calendar.getInstance();
+		new DatePickerDialog(MainActivity.mainActivity, (view, year, monthOfYear, dayOfMonth) -> {
+			date.set(year, monthOfYear, dayOfMonth);
+			new TimePickerDialog(MainActivity.mainActivity, (view1, hourOfDay, minute) -> {
+				date.set(Calendar.HOUR_OF_DAY, hourOfDay);
+				date.set(Calendar.MINUTE, minute);
+				runnable.run();
+			}, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), true).show();
+		}, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
+			case R.id.menu_guest_access:
+				guestAccess();
+				return true;
 			case R.id.menu_scan:
 				scan();
 				return true;
@@ -187,18 +222,23 @@ public class MainActivity extends AppCompatActivity {
 		}
         handleIntent(getIntent());
 	}
-
-
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+	}
+	
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         handleIntent(intent);
     }
-
+    
     private void handleIntent(Intent intent) {
-        Uri appLinkData = intent.getData();
+	    Uri appLinkData = intent.getData();
         if (appLinkData != null){
             String guest_ID = appLinkData.getLastPathSegment();
-            Log.e("Received Guest ID: ",guest_ID);
+	        byte[] bytes = Base64.getUrlDecoder().decode(guest_ID);
+	        Util.setKey(bytes);
+	        Protocol.guestUnlockSignInThingy();
         }
     }
 	

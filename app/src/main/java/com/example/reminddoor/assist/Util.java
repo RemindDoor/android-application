@@ -2,10 +2,8 @@ package com.example.reminddoor.assist;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
-import android.security.keystore.KeyProtection;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -19,20 +17,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 
 import javax.crypto.BadPaddingException;
@@ -128,6 +118,33 @@ public class Util {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static byte[] longToBytes(long loong) {
+		return new byte[] {
+				(byte) loong,
+				(byte) (loong >> 8),
+				(byte) (loong >> 16),
+				(byte) (loong >> 24),
+				(byte) (loong >> 32),
+				(byte) (loong >> 40),
+				(byte) (loong >> 48),
+				(byte) (loong >> 56)};
+	}
+	
+	public static void popupBox(Context context, String title, Runnable runnable, View view) {
+		MainActivity.mainActivity.runOnUiThread(() -> {
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			
+			builder.setPositiveButton("OK", (dialog, which) -> {
+				runnable.run();
+			});
+			builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+			
+			builder.setTitle(title);
+			builder.setView(view);
+			builder.show();
+		});
 	}
 	
 	public static String padRight(String s, int n) {

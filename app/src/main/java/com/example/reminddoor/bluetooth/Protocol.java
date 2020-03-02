@@ -1,5 +1,9 @@
 package com.example.reminddoor.bluetooth;
 
+import android.text.InputType;
+import android.widget.EditText;
+import android.widget.TextView;
+
 import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentManager;
 
@@ -7,7 +11,10 @@ import com.example.reminddoor.MainActivity;
 import com.example.reminddoor.assist.Util;
 import com.example.reminddoor.ui.dashboard.DashboardFragment;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 
 public class Protocol {
 	
@@ -57,6 +64,38 @@ public class Protocol {
 		Connectivity.sendData(Type.GET_ALL_USERS.get(), empty, byteEater);
 	}
 	
+	/**
+	 * Unlocks the door, links the phone up with the Arduino, disables the old link, all sorts of things.
+	 */
+	public static void guestUnlockSignInThingy() {
+		Consumer<byte[]> byteEater = s -> {
+			Util.setKey(s);
+			Protocol.unlockDoor();
+		};
+		
+		Connectivity.sendData(Type.SWAP_OUT_GUEST.get(), empty, byteEater);
+	}
+	
+	public static void createGuestAccount(String name, long startTime, long endTime) throws IOException {
+		Consumer<byte[]> byteEater = s -> {
+			String toDecode = Base64.getUrlEncoder().encodeToString(s);
+			
+			final TextView text = new TextView(MainActivity.mainActivity);
+			text.setTextIsSelectable(true);
+			text.setFocusable(true);
+			text.setLongClickable(true);
+			text.setEnabled(true);
+			text.setText("www.reminddoor.com/guest/" + toDecode);
+			Util.popupBox(MainActivity.mainActivity, "URL", () -> {}, text);
+		};
+		
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		outputStream.write(Util.padRight(name, 31).getBytes());
+		outputStream.write(Util.longToBytes(startTime));
+		outputStream.write(Util.longToBytes(endTime));
+		Connectivity.sendData(Type.NEW_GUEST.get(), outputStream.toByteArray(), byteEater);
+	}
+	
 	private static ArrayList<String> split(byte[] s) {
 		String[] splitNames = new String(s).split("\\|");
 		
@@ -72,8 +111,8 @@ public class Protocol {
 	
 	/*
 	 * Case list:
-	 * 0: ADMIN - Unlocking door request admin
-	 * 1: Unlocking door request guest
+	 * 0: Unlocking door request
+	 * 1: ADMIN - Create temporary guest account (Logs it for replacement and adds timestamps)
 	 * 2: ADMIN - Generate new user request (Generates new key and adds user name)
 	 * 3: ADMIN - Remove user request (You provide a name).
 	 *      | --- 32 bytes of name --- |
@@ -81,18 +120,20 @@ public class Protocol {
 	 *      | --- nothing --- |
 	 * 5: My name change request.
 	 *      | --- 32 bytes of new name --- |
-	 * 6: Others change name request.
+	 * 6: ADMIN - Others change name request.
 	 *      | --- 32 bytes of old name --- | | --- 32 bytes of new name --- |
+	 * 7: Swaps out guest key for new random key and gives to guest.
 	 */
 	
 	public enum Type {
 		UNLOCK,
-		UNLOCK_GUEST,
+		NEW_GUEST,
 		NEW_USER,
 		REMOVE_USER,
 		GET_ALL_USERS,
 		CHANGE_MY_NAME,
-		CHANGE_OTHER_NAME;
+		CHANGE_OTHER_NAME,
+		SWAP_OUT_GUEST;
 		
 		public byte get() {
 			return (byte) this.ordinal();

@@ -39,16 +39,7 @@ public class Connectivity {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		// Write the time to prevent packet duping attacks.
 		long time = System.currentTimeMillis();
-		byte[] b = new byte[] {
-				(byte) time,
-				(byte) (time >> 8),
-				(byte) (time >> 16),
-				(byte) (time >> 24),
-				(byte) (time >> 32),
-				(byte) (time >> 40),
-				(byte) (time >> 48),
-				(byte) (time >> 56)};
-		bytes.write(b);
+		bytes.write(Util.longToBytes(time));
 
 		// Write the start-of-transmission marker.
 		for (int i = 0; i < 4; i++) {
@@ -75,11 +66,13 @@ public class Connectivity {
 	
 	static ProgressDialog nDialog = null;
 	public static void sendData(byte[] array, Consumer<byte[]> consumer) {
-		nDialog = new ProgressDialog(MainActivity.mainActivity);
+		MainActivity.mainActivity.runOnUiThread(() -> {
+				nDialog = new ProgressDialog(MainActivity.mainActivity);
 		nDialog.setMessage("Loading..");
 		nDialog.setIndeterminate(true);
 		nDialog.setCancelable(true);
 		nDialog.show();
+		});
 		
 		toSend = array;
 		
@@ -218,6 +211,8 @@ public class Connectivity {
 				nDialog.dismiss();
 				nDialog = null;
 			}
+			System.out.println("Received from Arduino: " + new String(received));
+			System.out.println("Length: " + characteristic.getValue().length);
 			
 			if (new String(received).equals("The request was denied.")) {
 				gatt.disconnect();
@@ -226,8 +221,6 @@ public class Connectivity {
 				MainActivity.kickBackToDisable.run();
 				byteEater.accept(null);
 			} else {
-				System.out.println("Received from Arduino: " + new String(received));
-				System.out.println("Length: " + characteristic.getValue().length);
 				byteEater.accept(received);
 			}
 			gatt.disconnect();
