@@ -224,12 +224,17 @@ public class MainActivity extends AppCompatActivity {
 	}
 	
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
+	public void onResume() {
+		super.onResume();
+		if (currentIntent != null) {
+			handleIntent(currentIntent);
+		}
 	}
 	
+	Intent currentIntent = null;
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        handleIntent(intent);
+        this.currentIntent = intent;
     }
     
     private void handleIntent(Intent intent) {
