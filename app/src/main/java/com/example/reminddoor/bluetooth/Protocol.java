@@ -1,7 +1,5 @@
 package com.example.reminddoor.bluetooth;
 
-import android.widget.Toast;
-
 import androidx.core.util.Consumer;
 import androidx.fragment.app.FragmentManager;
 
@@ -9,7 +7,6 @@ import com.example.reminddoor.MainActivity;
 import com.example.reminddoor.assist.Util;
 import com.example.reminddoor.ui.dashboard.DashboardFragment;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 public class Protocol {
@@ -20,7 +17,19 @@ public class Protocol {
 		Connectivity.sendData(Type.UNLOCK.get(), empty, null);
 	}
 	
-	public static void addUser(final FragmentManager fm, byte[] encryptedString) {
+	public static void removeUser(String user, final Consumer<ArrayList<String>> namesListConsumer) {
+		Consumer<byte[]> byteEater = s -> {
+			if (s == null) {
+				return;
+			}
+			
+			namesListConsumer.accept(split(s));
+		};
+		
+		Connectivity.sendData(Type.REMOVE_USER.get(), Util.padRight(user, 31).getBytes(), byteEater);
+	}
+	
+	public static void addUser(byte[] encryptedString) {
 		Consumer<byte[]> byteEater = s -> {
 			if (s == null) {
 				Util.showToast("That QR code has timed out. Please create a new one and try again.");
@@ -30,7 +39,7 @@ public class Protocol {
 			Util.setKey(s);
 			
 			if (MainActivity.currentFragment == MainActivity.BottomTab.DOOR) {
-				DashboardFragment.updateUsersList(fm);
+				DashboardFragment.updateUsersList();
 			}
 		};
 		
@@ -40,22 +49,24 @@ public class Protocol {
 	public static void getUserList(final Consumer<ArrayList<String>> namesListConsumer) {
 		Consumer<byte[]> byteEater = s -> {
 			if (s == null) {
-				Util.showToast("Your account is no longer valid with this door.");
 				return;
 			}
 			
-			String[] splitNames = new String(s).split("\\|");
-			
-			ArrayList<String> names = new ArrayList<>();
-			for (String name : splitNames) {
-				if (name.length() > 0) {
-					names.add(name);
-				}
-			}
-			
-			namesListConsumer.accept(names);
+			namesListConsumer.accept(split(s));
 		};
 		Connectivity.sendData(Type.GET_ALL_USERS.get(), empty, byteEater);
+	}
+	
+	private static ArrayList<String> split(byte[] s) {
+		String[] splitNames = new String(s).split("\\|");
+		
+		ArrayList<String> names = new ArrayList<>();
+		for (String name : splitNames) {
+			if (name.length() > 0) {
+				names.add(name);
+			}
+		}
+		return names;
 	}
 	
 	

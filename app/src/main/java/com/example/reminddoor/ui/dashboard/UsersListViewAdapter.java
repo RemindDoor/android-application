@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.reminddoor.R;
+import com.example.reminddoor.bluetooth.Protocol;
 import com.example.reminddoor.ui.notifications.list.RemindersCalendarContainer;
 
 public class UsersListViewAdapter extends RecyclerView.Adapter<UsersListViewAdapter.ViewHolder> {
@@ -33,13 +34,8 @@ public class UsersListViewAdapter extends RecyclerView.Adapter<UsersListViewAdap
 			holder.mContentView.setText("");
 		}
 		
-		holder.mButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				RemindersCalendarContainer.removeItem(position);
-				notifyItemRemoved(position);
-				notifyItemRangeChanged(position, getItemCount());
-			}
+		holder.mButton.setOnClickListener(v -> {
+			Protocol.removeUser(text, DashboardFragment.updateList());
 		});
 	}
 	

@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 				
 				String barcodeContents = result.getContents();
 				byte[] toSend = barcodeContents.getBytes(StandardCharsets.ISO_8859_1);
-				Protocol.addUser(getSupportFragmentManager(), toSend);
+				Protocol.addUser(toSend);
 			}
 		}
 	}
