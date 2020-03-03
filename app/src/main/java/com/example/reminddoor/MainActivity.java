@@ -205,6 +205,19 @@ public class MainActivity extends AppCompatActivity {
 						1);
 			}
 		}
+
+		if (ContextCompat.checkSelfPermission(this,
+				Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+				!= PackageManager.PERMISSION_GRANTED) {
+
+			if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+					Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+			} else {
+				ActivityCompat.requestPermissions(this,
+						new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+						2);
+			}
+		}
 		
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		BLEScanner = bluetoothAdapter.getBluetoothLeScanner();
