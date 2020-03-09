@@ -1,5 +1,8 @@
 package com.example.reminddoor.bluetooth;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.text.InputType;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,6 +18,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static androidx.core.content.ContextCompat.getSystemService;
+import static java.security.AccessController.getContext;
 
 public class Protocol {
 	
@@ -79,14 +86,14 @@ public class Protocol {
 	public static void createGuestAccount(String name, long startTime, long endTime) throws IOException {
 		Consumer<byte[]> byteEater = s -> {
 			String toDecode = Base64.getUrlEncoder().encodeToString(s);
-			
+
 			final TextView text = new TextView(MainActivity.mainActivity);
 			text.setTextIsSelectable(true);
 			text.setFocusable(true);
 			text.setLongClickable(true);
 			text.setEnabled(true);
 			text.setText("www.reminddoor.com/guest/" + toDecode);
-			Util.popupBox(MainActivity.mainActivity, "URL", () -> {}, text);
+			Util.popupBox(MainActivity.mainActivity, "URL", () -> {}, text,"www.reminddoor.com/guest/" + toDecode);
 		};
 		
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -94,6 +101,17 @@ public class Protocol {
 		outputStream.write(Util.longToBytes(startTime));
 		outputStream.write(Util.longToBytes(endTime));
 		Connectivity.sendData(Type.NEW_GUEST.get(), outputStream.toByteArray(), byteEater);
+	}
+
+	private void setClipboard(Context context, String text) {
+		if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+			android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+			clipboard.setText(text);
+		} else {
+			android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+			android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", text);
+			clipboard.setPrimaryClip(clip);
+		}
 	}
 	
 	private static ArrayList<String> split(byte[] s) {

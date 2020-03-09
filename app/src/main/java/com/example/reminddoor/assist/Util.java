@@ -146,6 +146,28 @@ public class Util {
 			builder.show();
 		});
 	}
+
+	public static void popupBox(Context context, String title, Runnable runnable, View view, String code) {
+			MainActivity.mainActivity.runOnUiThread(() -> {
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+				builder.setPositiveButton("Copy to Clipboard", (dialog, which) -> {
+					android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+					android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", code);
+					clipboard.setPrimaryClip(clip);
+					showToast("Copied to clipboard!");
+					runnable.run();
+				});
+				builder.setNegativeButton("Email", (dialog, which) ->
+				{
+					MainActivity.mainActivity.sendGuestEmail(code);
+					dialog.cancel(); });
+
+				builder.setTitle(title);
+				builder.setView(view);
+				builder.show();
+			});
+	}
 	
 	public static String padRight(String s, int n) {
 		return String.format("%-" + n + "s", s);

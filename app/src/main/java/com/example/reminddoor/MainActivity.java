@@ -62,7 +62,24 @@ public class MainActivity extends AppCompatActivity {
 	public static MainActivity mainActivity;
 	
 	public static BottomTab currentFragment = BottomTab.HOME;
-	
+
+	public void sendGuestEmail(String code) {
+		Intent i = new Intent(Intent.ACTION_SEND);
+		i.setType("message/rfc822");
+		i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"recipient@example.com"});
+		i.putExtra(Intent.EXTRA_SUBJECT, "Your RemindDoor Guest Key");
+		i.putExtra(Intent.EXTRA_TEXT   , "Hello!\n" +
+				"I'd like to allow you into my home via RemindDoor, a non-intrusive door unlocker. Please visit remindoor.co.uk for more information. \n" +
+				"Your RemindDoor code is below. Thanks! \n" +
+				"[[USERNAME]]"+"\n" +
+				code+"\n");
+		try {
+			startActivity(Intent.createChooser(i, "Send mail..."));
+		} catch (android.content.ActivityNotFoundException ex) {
+			Toast.makeText(this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+		}
+	}
+
 	public enum BottomTab {
 		HOME, DOOR, REMINDERS
 	}
