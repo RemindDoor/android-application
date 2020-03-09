@@ -29,7 +29,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
         }
     }
 
-    private void addImportantNotification(Context context){
+    public static void addImportantNotification(Context context){
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
         Notification notification2 = new NotificationCompat.Builder(context, NotificationSetup.CHANNEL_1_ID)

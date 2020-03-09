@@ -1,8 +1,10 @@
 package com.example.reminddoor;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,6 +18,8 @@ import android.icu.util.GregorianCalendar;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.SystemClock;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
@@ -29,6 +33,7 @@ import android.widget.Toast;
 
 import com.example.reminddoor.assist.Util;
 import com.example.reminddoor.bluetooth.Connectivity;
+import com.example.reminddoor.bluetooth.CounterService;
 import com.example.reminddoor.bluetooth.Protocol;
 import com.example.reminddoor.ui.barcode.showQRCode_fragment;
 import com.example.reminddoor.ui.home.DisabledFragment;
@@ -205,6 +210,9 @@ public class MainActivity extends AppCompatActivity {
 						1);
 			}
 		}
+		
+		Intent myIntent = new Intent(ctx, CounterService.class);
+		startForegroundService(myIntent);
 		
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		BLEScanner = bluetoothAdapter.getBluetoothLeScanner();
