@@ -58,11 +58,14 @@ public class CounterService extends IntentService {
 		@Override
 		public void onScanResult(int callbackType, ScanResult result) {
 			if (result.getDevice().getName() == null) return;
-			System.out.println(Util.getCurrentTime() + " Found the device! " + result.getDevice().getName() + " " + result.getRssi());
+			if (result.getDevice().getName().equals("Reminder")) {
+				BluetoothReceiver.addRemindersNotification(MainActivity.ctx);
+//				Protocol.ackReminder();
+			}
 			
 			if (result.getRssi() > -60 && notificationSend) {
 				notificationSend = false;
-				BluetoothReceiver.addImportantNotification(MainActivity.ctx);
+				BluetoothReceiver.addDoorNotification(MainActivity.ctx);
 			} else if (result.getRssi() < -80) {
 				notificationSend = true;
 			}

@@ -76,6 +76,10 @@ public class Protocol {
 		Connectivity.sendData(Type.SWAP_OUT_GUEST.get(), empty, byteEater);
 	}
 	
+	public static void ackReminder() {
+		Connectivity.sendData(Type.ACK_REMINDER.get(), empty, null);
+	}
+	
 	public static void createGuestAccount(String name, long startTime, long endTime) throws IOException {
 		Consumer<byte[]> byteEater = s -> {
 			String toDecode = Base64.getUrlEncoder().encodeToString(s);
@@ -133,7 +137,8 @@ public class Protocol {
 		GET_ALL_USERS,
 		CHANGE_MY_NAME,
 		CHANGE_OTHER_NAME,
-		SWAP_OUT_GUEST;
+		SWAP_OUT_GUEST,
+		ACK_REMINDER;
 		
 		public byte get() {
 			return (byte) this.ordinal();

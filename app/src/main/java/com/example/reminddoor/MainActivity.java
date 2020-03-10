@@ -227,7 +227,6 @@ public class MainActivity extends AppCompatActivity {
 		NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 		NavigationUI.setupWithNavController(navView, navController);
 		
-//		Util.getKey();
 		createNotifications();
 		if (ContextCompat.checkSelfPermission(this,
 				Manifest.permission.ACCESS_FINE_LOCATION)

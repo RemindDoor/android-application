@@ -29,8 +29,29 @@ public class BluetoothReceiver extends BroadcastReceiver {
             }
         }
     }
-
-    public static void addImportantNotification(Context context){
+	
+	public static void addRemindersNotification(Context context){
+		NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+		
+		Intent notificationIntent = new Intent(context, MainActivity.class);
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+		
+		Notification notification2 = new NotificationCompat.Builder(context, MainActivity.CHANNEL_1_ID)
+				.setSmallIcon(R.mipmap.ic_launcher_round)
+				.setContentTitle("RemindDoor")
+				.setContentText("Your reminders: [BLANK_UNDEFINED]")
+				.setStyle(new NotificationCompat.BigTextStyle()
+						.bigText("Your reminders: [BLANK_UNDEFINED]"))
+				.setPriority(NotificationCompat.PRIORITY_HIGH)
+				.setContentIntent(intent)
+				.build();
+		
+		
+		notificationManager.notify(0, notification2);
+	}
+    
+    public static void addDoorNotification(Context context){
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 	
 	    Intent notificationIntent = new Intent(context, MainActivity.class);
@@ -43,7 +64,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
                 .setContentText("Door Found- unlock device to open your door")
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText("Unlock device to open your door"))
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 		        .setContentIntent(intent)
                 .build();
         
