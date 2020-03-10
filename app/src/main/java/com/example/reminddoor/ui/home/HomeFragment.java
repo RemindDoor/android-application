@@ -1,11 +1,13 @@
 package com.example.reminddoor.ui.home;
 
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -16,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.an.biometric.*;
 import com.example.reminddoor.MainActivity;
 import com.example.reminddoor.R;
+import com.example.reminddoor.assist.Util;
 import com.example.reminddoor.bluetooth.ArduinoCommunication;
 
 
@@ -49,8 +52,7 @@ public class HomeFragment extends Fragment {
 				}
 			}
 		});
-
-
+		
 		//===============================================================================
 		// Set Pin
 		Button set = root.findViewById(R.id.btn_set);

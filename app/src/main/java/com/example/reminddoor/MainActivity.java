@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -12,6 +14,7 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.icu.util.Calendar;
 import android.icu.util.GregorianCalendar;
@@ -26,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
@@ -37,6 +41,7 @@ import com.example.reminddoor.bluetooth.CounterService;
 import com.example.reminddoor.bluetooth.Protocol;
 import com.example.reminddoor.ui.barcode.showQRCode_fragment;
 import com.example.reminddoor.ui.home.DisabledFragment;
+import com.example.reminddoor.ui.home.PrivacyFragment;
 import com.example.reminddoor.ui.notifications.list.RemindersCalendarContainer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -54,6 +59,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
 import java.util.Base64;
 
 public class MainActivity extends AppCompatActivity {
@@ -168,6 +174,31 @@ public class MainActivity extends AppCompatActivity {
 	}
 	
 	public static Runnable kickBackToDisable;
+	public static final String CHANNEL_1_ID = "channel1";
+	public static final String CHANNEL_2_ID = "channel2";
+	
+	public void createNotifications(){
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			NotificationChannel channe11 = new NotificationChannel(
+					CHANNEL_1_ID,
+					"Welcome Home",
+					NotificationManager.IMPORTANCE_HIGH
+			);
+			channe11.setDescription("Please unlock your phone to open your door");
+			
+			NotificationChannel channe12 = new NotificationChannel(
+					CHANNEL_2_ID,
+					"Goodbye",
+					NotificationManager.IMPORTANCE_LOW
+			);
+			channe11.setDescription("Please unlock your phone to view reminders");
+			
+			NotificationManager manager = getSystemService(NotificationManager.class);
+			
+			manager.createNotificationChannel(channe11);
+			manager.createNotificationChannel(channe12);
+		}
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -197,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
 		NavigationUI.setupWithNavController(navView, navController);
 		
 //		Util.getKey();
-		
+		createNotifications();
 		if (ContextCompat.checkSelfPermission(this,
 				Manifest.permission.ACCESS_FINE_LOCATION)
 				!= PackageManager.PERMISSION_GRANTED) {
@@ -228,8 +259,15 @@ public class MainActivity extends AppCompatActivity {
 				intentFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
 			}
 		}
+		
+		prefs = getSharedPreferences("com.edinburgh.reminddoor", MODE_PRIVATE);
+		if (prefs.getBoolean("accepted_privacy", true) || true) { // TODO disable this true to make the one-time thing work.
+			new PrivacyFragment().show(mainActivity.getSupportFragmentManager(), "Privacy.");
+		}
+		
         handleIntent(getIntent());
 	}
+	public static SharedPreferences prefs = null;
 	
 	@Override
 	public void onResume() {

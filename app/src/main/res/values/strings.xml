@@ -6,4 +6,10 @@
 	<string name="delete">Delete</string>
 	<string name="reminder_default">This is a reminder</string>
 	<string name="add_a_reminder">Add a reminder</string>
+	<string name="some_text"><![CDATA[<b data-stringify-type="bold">RemindDoor </b>collects user personal information to provide users a personalised app experience. The personal information we collect and why we collect is detailed below:<ul class="p-rich_text_list p-rich_text_list__bullet" data-indent="0" data-stringify-type="unordered-list">
+						<li><b data-stringify-type="bold">Username</b> &ndash; Allows authorised person(s) to unlock the door.</li>
+						<li><b data-stringify-type="bold">Begin-End Stay Times &ndash; </b>Allows hosts to grant limited time door access for guest users.</li>
+						<li><b data-stringify-type="bold">Door Unlock PIN &ndash; </b>Allows authorised person(s) to unlock the door via secure pin.</li>
+						</ul>
+						By ticking the checkbox below you are providing explicit consent to RemindDoor to collect this information in compliance with GDPR.</div>]]></string>
 </resources>

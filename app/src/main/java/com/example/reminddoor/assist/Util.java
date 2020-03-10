@@ -135,7 +135,6 @@ public class Util {
 	public static void popupBox(Context context, String title, Runnable runnable, View view) {
 		MainActivity.mainActivity.runOnUiThread(() -> {
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			
 			builder.setPositiveButton("OK", (dialog, which) -> {
 				runnable.run();
 			});

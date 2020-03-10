@@ -1,6 +1,7 @@
 package com.example.reminddoor;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -31,15 +32,21 @@ public class BluetoothReceiver extends BroadcastReceiver {
 
     public static void addImportantNotification(Context context){
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-
-        Notification notification2 = new NotificationCompat.Builder(context, NotificationSetup.CHANNEL_1_ID)
+	
+	    Intent notificationIntent = new Intent(context, MainActivity.class);
+	    notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+	    PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+        
+        Notification notification2 = new NotificationCompat.Builder(context, MainActivity.CHANNEL_1_ID)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setContentTitle("RemindDoor")
                 .setContentText("Door Found- unlock device to open your door")
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText("Unlock device to open your door"))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+		        .setContentIntent(intent)
                 .build();
+        
 
         notificationManager.notify(0, notification2);
     }
