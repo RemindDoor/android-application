@@ -13,6 +13,7 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
@@ -31,7 +32,7 @@ public class CounterService extends IntentService {
 				connect(leScanCallback);
 			}
 			
-			mHandler.postDelayed(longFormScans, 7000L);
+			mHandler.postDelayed(longFormScans, 1000L * 60 * 5);
 		}
 	};
 
@@ -58,17 +59,17 @@ public class CounterService extends IntentService {
 		@Override
 		public void onScanResult(int callbackType, ScanResult result) {
 			if (result.getDevice().getName() == null) return;
-			if (result.getDevice().getName().equals("Reminder")) {
-				BluetoothReceiver.addRemindersNotification(MainActivity.ctx);
-//				Protocol.ackReminder();
-			}
-			
-			if (result.getRssi() > -60 && notificationSend) {
-				notificationSend = false;
-				BluetoothReceiver.addDoorNotification(MainActivity.ctx);
-			} else if (result.getRssi() < -80) {
-				notificationSend = true;
-			}
+//			if (result.getDevice().getName().equals("Reminder")) {
+//				BluetoothReceiver.addRemindersNotification(MainActivity.ctx);
+////				Protocol.ackReminder();
+//			}
+			Toast.makeText(MainActivity.ctx, "Bluetooth Strength: " + result.getRssi(), Toast.LENGTH_SHORT).show();
+//			if (result.getRssi() > -60 && notificationSend) {
+//				notificationSend = false;
+//				BluetoothReceiver.addDoorNotification(MainActivity.ctx);
+//			} else if (result.getRssi() < -80) {
+//				notificationSend = true;
+//			}
 		}
 	};
 	
