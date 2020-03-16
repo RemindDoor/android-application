@@ -32,7 +32,7 @@ public class Connectivity {
 	static byte[] toSend = new byte[]{};
 	static int toSendPosition = 0;
 	static final int SIZE = 20;
-	static boolean done = false;
+	private static boolean doneWriting = false;
 	static Consumer<byte[]> byteEater;
 	
 	public static byte[] buildData(byte protocol, byte[] inputBytes) throws IOException {
@@ -68,9 +68,13 @@ public class Connectivity {
 	public static void sendData(byte[] array, Consumer<byte[]> consumer) {
 		MainActivity.mainActivity.runOnUiThread(() -> {
 				nDialog = new ProgressDialog(MainActivity.mainActivity);
-		nDialog.setMessage("Loading..");
+			MainActivity.mainActivity.runOnUiThread(() -> nDialog.setMessage("Searching for the Arduino ..."));
 		nDialog.setIndeterminate(true);
 		nDialog.setCancelable(true);
+		nDialog.setOnCancelListener(dialog -> {
+			MainActivity.BLEScanner.stopScan(leScanCallback);
+			Util.showToast("Scan cancelled.");
+		});
 		nDialog.show();
 		});
 		
@@ -84,7 +88,7 @@ public class Connectivity {
 		}
 		
 		toSendPosition = 0;
-		done = false;
+		doneWriting = false;
 		
 		ScanFilter.Builder builder = new ScanFilter.Builder();
 		builder.setDeviceAddress("A4:CF:12:8B:D5:12");
@@ -141,9 +145,10 @@ public class Connectivity {
 	
 	private static void sendNextChunk(BluetoothGattCharacteristic characteristic, BluetoothGatt gatt) {
 		if (toSendPosition >= toSend.length) {
+			MainActivity.mainActivity.runOnUiThread(() -> nDialog.setMessage("Waiting for a response ..."));
 			characteristic.setValue("");
 			gatt.writeCharacteristic(characteristic);
-			done = true;
+			doneWriting = true;
 			return;
 		}
 		
@@ -164,6 +169,9 @@ public class Connectivity {
 				case BluetoothProfile.STATE_CONNECTED:
 					System.out.println(Util.getCurrentTime() + "Connected!");
 					Log.d("BLED-GATT", "STATE_CONNECTED");
+					MainActivity.mainActivity.runOnUiThread(() -> {
+						if (nDialog != null) nDialog.setMessage("Discovering Services ...");
+					});
 					gatt.discoverServices();
 					break;
 				case BluetoothProfile.STATE_DISCONNECTED:
@@ -184,6 +192,7 @@ public class Connectivity {
 			for (BluetoothGattService service: gatt.getServices()) {
 				for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
 					if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+						MainActivity.mainActivity.runOnUiThread(() -> nDialog.setMessage("Sending to the Arduino ..."));
 						sendNextChunk(characteristic, gatt);
 					}
 					if ((characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
@@ -196,8 +205,9 @@ public class Connectivity {
 		
 		@Override
 		public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-			if (done) {
+			if (doneWriting) {
 				gatt.readCharacteristic(characteristic);
+				MainActivity.mainActivity.runOnUiThread(() -> nDialog.setMessage("Receiving the response ..."));
 				return;
 			}
 			sendNextChunk(characteristic, gatt);
@@ -213,11 +223,14 @@ public class Connectivity {
 			}
 			System.out.println("Received from Arduino: " + new String(received));
 			System.out.println("Length: " + characteristic.getValue().length);
+			String receivedString = new String(received);
 			
-			if (new String(received).equals("The request was denied.")) {
+			if (receivedString.equals("The request was denied.")) {
+				Util.showToast(receivedString);
 				gatt.disconnect();
 				byteEater.accept(null);
-			} else if (new String(received).equals("The key is invalid.")) {
+			} else if (receivedString.equals("The key is invalid.")) {
+				Util.showToast(receivedString);
 				MainActivity.kickBackToDisable.run();
 				byteEater.accept(null);
 			} else {

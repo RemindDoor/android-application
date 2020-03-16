@@ -31,7 +31,7 @@ public class CounterService extends IntentService {
 				connect(leScanCallback);
 			}
 			
-			mHandler.postDelayed(longFormScans, 7000L);
+			mHandler.postDelayed(longFormScans, 60 * 1000L * 5); // 5 minutes.
 		}
 	};
 
@@ -58,10 +58,6 @@ public class CounterService extends IntentService {
 		@Override
 		public void onScanResult(int callbackType, ScanResult result) {
 			if (result.getDevice().getName() == null) return;
-			if (result.getDevice().getName().equals("Reminder")) {
-				BluetoothReceiver.addRemindersNotification(MainActivity.ctx);
-//				Protocol.ackReminder();
-			}
 			
 			if (result.getRssi() > -60 && notificationSend) {
 				notificationSend = false;
